@@ -1,11 +1,11 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "files.exclude": {
-    "out": false // set this to true to hide the "out" folder with the compiled JS files
-  },
-  "search.exclude": {
-    "out": true // set this to false to include "out" folder in search results
-  },
-  // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
-  "typescript.tsc.autoDetect": "off"
+   "files.exclude": {
+      "clients/vs-code/dist": false // set this to true to hide the compiled extension output
+   },
+   "search.exclude": {
+      "clients/vs-code/dist": true // set this to false to include compiled output in search results
+   },
+   // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+   "typescript.tsc.autoDetect": "off"
 }
