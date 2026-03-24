@@ -13,6 +13,11 @@
             "reveal": "never"
          },
          "problemMatcher": ["$tsc"]
+      },
+      {
+         "type": "shell",
+         "label": "install and compile",
+         "command": "cd server && cargo build && cd ../clients/vs-code && pnpm i && pnpm compile"
       }
    ]
 }
