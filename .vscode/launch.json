@@ -1,48 +1,16 @@
-// A launch configuration that compiles the extension and then opens it inside a new window
 {
    "version": "0.2.0",
    "configurations": [
       {
          "type": "extensionHost",
          "request": "launch",
-         "name": "Launch Client",
+         "name": "Launch VS Code Client",
          "runtimeExecutable": "${execPath}",
          "args": ["--extensionDevelopmentPath=${workspaceRoot}/clients/vs-code"],
          "outFiles": ["${workspaceRoot}/clients/vs-code/dist/**/*.js"],
          "env": {
-            "SERVER_PATH": "${workspaceRoot}/server/target/debug/ai-codelint-server"
+            "SERVER_PATH": "${workspaceRoot}/server/target/debug/ai-codelint"
          }
-      }
-      // {
-      //   "type": "node",
-      //   "request": "attach",
-      //   "name": "Attach to Server",
-      //   "port": 6009,
-      //   "restart": true,
-      //   "outFiles": ["${workspaceRoot}/server/out/**/*.js"]
-      // },
-      // E2E test config disabled after project relocation.
-      // Re-enable once test output/fixtures are reintroduced under clients/vs-code.
-      // {
-      //   "name": "Language Server E2E Test",
-      //   "type": "extensionHost",
-      //   "request": "launch",
-      //   "runtimeExecutable": "${execPath}",
-      //   "args": [
-      //     "--extensionDevelopmentPath=${workspaceRoot}/clients/vs-code",
-      //     "--extensionTestsPath=${workspaceRoot}/clients/vs-code/out/test/index",
-      //     "${workspaceRoot}/clients/vs-code/testFixture"
-      //   ],
-      //   "outFiles": ["${workspaceRoot}/clients/vs-code/out/test/**/*.js"]
-      // }
-   ],
-   "compounds": [
-      {
-         "name": "Client + Server",
-         "configurations": [
-            "Launch Client"
-            // "Attach to Server"
-         ]
       }
    ]
 }

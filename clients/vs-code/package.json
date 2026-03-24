@@ -1,8 +1,11 @@
 {
    "name": "ai-codelint",
-   "version": "1.5.0",
+   "version": "0.0.1",
    "description": "Boost code quality as you type",
-   "categories": [],
+   "categories": [
+      "AI",
+      "Linters"
+   ],
    "keywords": [
       "AI",
       "linter",
@@ -42,12 +45,18 @@
       "vscode-test": "^1.4.0",
       "vscode-uri": "^3.0.2"
    },
+   "engines": {
+      "vscode": "^1.66.0"
+   },
+   "activationEvents": [
+      "onLanguage:ts"
+   ],
    "contributes": {
       "languages": [
          {
-            "id": "l",
+            "id": "typescript",
             "extensions": [
-               ".l"
+               ".ts"
             ]
          }
       ],
@@ -55,7 +64,7 @@
          "type": "object",
          "title": "ai-codelint",
          "properties": {
-            "l-language-server.trace.server": {
+            "ai-codelint.trace.server": {
                "type": "string",
                "scope": "window",
                "enum": [
@@ -69,16 +78,10 @@
                   "Full log"
                ],
                "default": "off",
-               "description": "Traces the communication between VS Code and the language server."
+               "description": "Traces the communication between VS Code and the linter."
             }
          }
       }
-   },
-   "activationEvents": [
-      "onLanguage:l"
-   ],
-   "engines": {
-      "vscode": "^1.66.0"
    },
    "packageManager": "pnpm@8.15.7",
    "enabledApiProposals": []

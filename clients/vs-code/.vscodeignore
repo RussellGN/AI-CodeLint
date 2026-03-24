@@ -10,6 +10,5 @@ Cargo.lock
 .github
 .cargo
 examples/
-justfile
 rust-toolchains.toml
 

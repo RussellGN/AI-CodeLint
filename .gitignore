@@ -5,7 +5,4 @@ out/
 *.ast 
 dist/
 *.vsix
-
-.claude
-
 nul

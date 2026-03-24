@@ -1,18 +1,13 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
+import * as vscode from "vscode";
+import * as lsp from "vscode-languageclient/node";
 
-import { workspace, ExtensionContext, window } from "vscode";
+let client: lsp.LanguageClient;
 
-import { Executable, LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
+export async function activate(_context: vscode.ExtensionContext) {
+   const traceOutputChannel = vscode.window.createOutputChannel("AI CodeLint trace");
+   const command = process.env.SERVER_PATH || "ai-codelint";
 
-let client: LanguageClient;
-
-export async function activate(_context: ExtensionContext) {
-   const traceOutputChannel = window.createOutputChannel("L Language Server trace");
-   const command = process.env.SERVER_PATH || "ai-codelint-server";
-   const run: Executable = {
+   const run: lsp.Executable = {
       command,
       options: {
          env: {
@@ -22,25 +17,16 @@ export async function activate(_context: ExtensionContext) {
          },
       },
    };
-   const serverOptions: ServerOptions = {
+   const serverOptions: lsp.ServerOptions = {
       run,
       debug: run,
    };
-   // If the extension is launched in debug mode then the debug server options are used
-   // Otherwise the run options are used
-   // Options to control the language client
-   let clientOptions: LanguageClientOptions = {
-      // Register the server for plain text documents
-      documentSelector: [{ scheme: "file", language: "l" }],
-      synchronize: {
-         // Notify the server about file changes to '.clientrc files contained in the workspace
-         fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
-      },
+
+   const clientOptions: lsp.LanguageClientOptions = {
+      documentSelector: [{ scheme: "file", language: "ts" }],
       traceOutputChannel,
    };
-
-   // Create the language client and start the client.
-   client = new LanguageClient("l-language-server", "L language server", serverOptions, clientOptions);
+   client = new lsp.LanguageClient("ai-codelint", "AI CodeLint", serverOptions, clientOptions);
    client.start();
 }
 

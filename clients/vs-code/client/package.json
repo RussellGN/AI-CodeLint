@@ -1,7 +1,7 @@
 {
-   "name": "ai-codelint-vscode-client",
+   "name": "ai-codelint-vscode-extension",
    "version": "0.0.1",
-   "description": "VSCode client extension for the linter language server",
+   "description": "AI CodeLint VSCode extension",
    "license": "MIT",
    "dependencies": {
       "vscode-languageclient": "9.0.1"
