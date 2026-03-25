@@ -14,10 +14,16 @@ pub(crate) struct Backend {
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
+        debug!("init!");
         Ok(InitializeResult {
             server_info: None,
             offset_encoding: None,
-            capabilities: ServerCapabilities::default(),
+            capabilities: ServerCapabilities {
+                text_document_sync: Some(TextDocumentSyncCapability::Kind(
+                    TextDocumentSyncKind::FULL,
+                )),
+                ..ServerCapabilities::default()
+            },
         })
     }
 
