@@ -28,6 +28,7 @@ impl LanguageServer for Backend {
         debug!("file opened!");
         self.lint_for_errors(CodeDocument {
             text: &params.text_document.text,
+            uri: &params.text_document.uri,
         });
     }
 
@@ -37,7 +38,10 @@ impl LanguageServer for Backend {
             Some(s) => &s.text,
             _ => "",
         };
-        self.lint_for_errors(CodeDocument { text });
+        self.lint_for_errors(CodeDocument {
+            text,
+            uri: &params.text_document.uri,
+        });
     }
 
     async fn did_close(&self, _: DidCloseTextDocumentParams) {
@@ -56,4 +60,5 @@ impl Backend {
 #[derive(Debug)]
 struct CodeDocument<'a> {
     text: &'a str,
+    uri: &'a Url,
 }
