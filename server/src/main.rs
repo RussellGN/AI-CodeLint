@@ -15,14 +15,8 @@ impl LanguageServer for Backend {
         Ok(InitializeResult {
             server_info: None,
             offset_encoding: None,
-            capabilities: ServerCapabilities {
-                ..ServerCapabilities::default()
-            },
+            capabilities: ServerCapabilities::default(),
         })
-    }
-
-    async fn initialized(&self, _: InitializedParams) {
-        debug!("initialized!");
     }
 
     async fn shutdown(&self) -> Result<()> {
