@@ -24,19 +24,36 @@ impl LanguageServer for Backend {
         Ok(())
     }
 
-    async fn did_open(&self, _params: DidOpenTextDocumentParams) {
+    async fn did_open(&self, params: DidOpenTextDocumentParams) {
         debug!("file opened!");
+        self.lint_for_errors(CodeDocument {
+            text: &params.text_document.text,
+        });
     }
 
-    async fn did_change(&self, _params: DidChangeTextDocumentParams) {
+    async fn did_change(&self, params: DidChangeTextDocumentParams) {
         debug!("file changed!");
-    }
-
-    async fn did_save(&self, _params: DidSaveTextDocumentParams) {
-        debug!("file saved!");
+        let text = match params.content_changes.first() {
+            Some(s) => &s.text,
+            _ => "",
+        };
+        self.lint_for_errors(CodeDocument { text });
     }
 
     async fn did_close(&self, _: DidCloseTextDocumentParams) {
         debug!("file closed!");
     }
+}
+
+impl Backend {
+    fn lint_for_errors(&self, code_to_lint: CodeDocument) {
+        debug!("linting_____________________________________________________________");
+        debug!("\n\n{}\n\n", code_to_lint.text);
+        debug!("done linting________________________________________________________");
+    }
+}
+
+#[derive(Debug)]
+struct CodeDocument<'a> {
+    text: &'a str,
 }
