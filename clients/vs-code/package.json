@@ -49,7 +49,7 @@
       "vscode": "^1.66.0"
    },
    "activationEvents": [
-      "onLanguage:ts"
+      "onLanguage:typescript"
    ],
    "contributes": {
       "languages": [
