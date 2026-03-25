@@ -31,7 +31,8 @@ impl LanguageServer for Backend {
         self.lint_for_errors(CodeDocument {
             text: &params.text_document.text,
             uri: &params.text_document.uri,
-        });
+        })
+        .await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
@@ -43,7 +44,8 @@ impl LanguageServer for Backend {
         self.lint_for_errors(CodeDocument {
             text,
             uri: &params.text_document.uri,
-        });
+        })
+        .await;
     }
 
     async fn did_close(&self, _: DidCloseTextDocumentParams) {
