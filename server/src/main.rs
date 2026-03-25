@@ -4,7 +4,7 @@ mod lsp;
 
 use tower_lsp::{LspService, Server};
 
-const GEMINI_API_KEY: &'static str = include_str!("../../.env");
+const GEMINI_API_KEY: &'static str = include_str!("../.env");
 
 #[tokio::main]
 async fn main() {
