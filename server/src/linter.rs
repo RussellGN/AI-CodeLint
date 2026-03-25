@@ -1,4 +1,5 @@
 use crate::genai::invoke_gemini;
+use log::debug;
 
 pub struct LintResult {
     pub overview: String,
@@ -16,6 +17,8 @@ pub async fn lint(text: &str) -> Result<LintResult, String> {
     2) Why it breaks behavior
     Be very concise and concrete, and when uncertain, prefer silence over speculative warnings.";
 
+    debug!("invoking gemini!");
     let overview = invoke_gemini(text, "gemini-2.5-flash-lite", preamble, 80).await?;
+    debug!("succesfully invoked gemini!");
     Ok(LintResult { overview })
 }
