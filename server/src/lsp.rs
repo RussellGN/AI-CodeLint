@@ -75,7 +75,7 @@ impl Backend {
     }
 
     async fn lint_for_errors(&self, code_to_lint: CodeDocument<'_>) {
-        match lint(code_to_lint.text) {
+        match lint(code_to_lint.text).await {
             Err(e) => panic!("{e}"),
             Ok(res) => {
                 // TODO: whole document as placeholder for now
