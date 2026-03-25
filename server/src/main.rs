@@ -1,3 +1,4 @@
+mod linter;
 mod lsp;
 
 use tower_lsp::{LspService, Server};
