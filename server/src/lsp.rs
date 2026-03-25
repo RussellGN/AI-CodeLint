@@ -3,6 +3,8 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 
+use crate::linter::lint;
+
 #[derive(Debug)]
 pub(crate) struct Backend {
     #[allow(unused)]
@@ -50,10 +52,38 @@ impl LanguageServer for Backend {
 }
 
 impl Backend {
-    fn lint_for_errors(&self, code_to_lint: CodeDocument) {
-        debug!("linting_____________________________________________________________");
-        debug!("\n\n{}\n\n", code_to_lint.text);
-        debug!("done linting________________________________________________________");
+    fn new_diag(text: &str, range: Range) -> Diagnostic {
+        Diagnostic {
+            message: text.to_string(),
+            range: range,
+            severity: None,
+            code: None,
+            code_description: None,
+            source: None,
+            related_information: None,
+            tags: None,
+            data: None,
+        }
+    }
+
+    async fn lint_for_errors(&self, code_to_lint: CodeDocument<'_>) {
+        match lint(code_to_lint.text) {
+            Err(e) => panic!("{e}"),
+            Ok(res) => {
+                // TODO: whole document as placeholder for now
+                let range = Range::new(
+                    Position::new(1, 1),
+                    Position::new(
+                        code_to_lint.text.len().try_into().unwrap(),
+                        code_to_lint.text.len().try_into().unwrap(),
+                    ),
+                );
+                let diagnostics = vec![Self::new_diag(&res.overview, range)];
+                self.client
+                    .publish_diagnostics(code_to_lint.uri.clone(), diagnostics, None)
+                    .await;
+            }
+        }
     }
 }
 
