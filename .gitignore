@@ -6,3 +6,4 @@ out/
 dist/
 *.vsix
 nul
+.env
