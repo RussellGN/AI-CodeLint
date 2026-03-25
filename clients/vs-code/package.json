@@ -77,7 +77,7 @@
                   "Error only",
                   "Full log"
                ],
-               "default": "off",
+               "default": "messages",
                "description": "Traces the communication between VS Code and the linter."
             }
          }
