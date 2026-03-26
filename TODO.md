@@ -1,0 +1,11 @@
+- determine when linting is triggered
+- work on lint caching
+- implement diagnostic ranges
+- abstract ai providers
+- refine ai invocation
+- map ai response to complete diagnostics data
+- build standalone ai-code-lint binary with token, provider, and model configs
+- create CI for standalone binary
+- publish vscode extension, with binary install script built in
+- try out different providers
+- create unified release CI
