@@ -22,11 +22,18 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
     let res = invoke_gemini(text, "gemini-2.5-flash-lite", preamble, 500).await?;
     trace!("raw Gemini lint response: {res}");
 
-    let errors_found = serde_json::from_str::<Vec<LintResult>>(&res).map_err(|e| {
-        error!("failed to parse lint JSON response: {e}");
-        e.to_string()
-    })?;
+    let errors_found = serde_json::from_str::<Vec<LintResult>>(&extract_json_array_only(&res)?)
+        .map_err(|e| {
+            error!("failed to parse lint JSON response: {e}");
+            e.to_string()
+        })?;
 
     debug!("lint completed with {} diagnostics", errors_found.len());
     Ok(errors_found)
+}
+
+fn extract_json_array_only(text: &str) -> Result<&str, String> {
+    let open_bracket_index = text.find("[").ok_or("could not find json array")?;
+    let end_bracket_index = text.find("]").ok_or("could not find json array")?;
+    Ok(&text[open_bracket_index..end_bracket_index + 1])
 }
