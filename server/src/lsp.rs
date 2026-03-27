@@ -118,8 +118,7 @@ impl Backend {
 
         if let Some(text) = text {
             match lint(&text).await {
-                Err(e) => panic!("{e}"),
-                Ok(res) => {
+                Ok(Some(res)) => {
                     let range = Range::new(
                         Position::new(1, 1),
                         Position::new(
@@ -140,6 +139,8 @@ impl Backend {
                         .publish_diagnostics(doc_uri, diagnostics, None)
                         .await;
                 }
+                Err(e) => panic!("{e}"),
+                _ => {}
             }
         }
     }
