@@ -6,7 +6,7 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 
-use crate::linter::lint;
+use crate::linter::{lint, LintResult};
 
 #[derive(Debug)]
 pub struct CachedDoc {
@@ -96,20 +96,6 @@ impl LanguageServer for Backend {
 }
 
 impl Backend {
-    fn new_diag(text: &str, range: Range) -> Diagnostic {
-        Diagnostic {
-            message: text.to_string(),
-            range: range,
-            severity: None,
-            code: None,
-            code_description: None,
-            source: None,
-            related_information: None,
-            tags: None,
-            data: None,
-        }
-    }
-
     async fn compile_diagnostics(&self, doc_uri: Url) {
         let text = {
             let docs = self.docs_being_watched.lock().await;
@@ -118,30 +104,42 @@ impl Backend {
 
         if let Some(text) = text {
             match lint(&text).await {
-                Ok(Some(res)) => {
-                    let range = Range::new(
-                        Position::new(1, 1),
-                        Position::new(
-                            text.len().try_into().unwrap(),
-                            text.len().try_into().unwrap(),
-                        ),
-                    );
-                    let diagnostics = vec![Self::new_diag(&res.overview, range)];
-                    if let Some(cached_doc) = self
-                        .docs_being_watched
-                        .lock()
-                        .await
-                        .get_mut(doc_uri.as_str())
+                Err(e) => panic!("{e}"),
+                Ok(errs) => {
+                    let diagnostics: Vec<Diagnostic> = errs.into_iter().map(|e| e.into()).collect();
                     {
-                        cached_doc.diagnostics = diagnostics.clone();
+                        let mut docs = self.docs_being_watched.lock().await;
+                        if let Some(doc) = docs.get_mut(doc_uri.as_str()) {
+                            doc.diagnostics = diagnostics.clone();
+                        }
                     }
                     self.client
                         .publish_diagnostics(doc_uri, diagnostics, None)
                         .await;
                 }
-                Err(e) => panic!("{e}"),
-                _ => {}
             }
+        }
+    }
+}
+
+impl From<LintResult> for Diagnostic {
+    fn from(value: LintResult) -> Self {
+        Self {
+            range: Range::new(
+                Position::new(value.start_line, 10000),
+                Position {
+                    line: value.end_line,
+                    character: 10_000,
+                },
+            ),
+            message: value.overview,
+            severity: Some(DiagnosticSeverity::HINT),
+            source: Some(String::from("AI CodeLint")),
+            tags: None,
+            data: None,
+            code: None,
+            code_description: None,
+            related_information: None,
         }
     }
 }
