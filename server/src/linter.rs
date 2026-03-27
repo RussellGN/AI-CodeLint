@@ -10,7 +10,7 @@ pub struct LintResult {
 }
 
 pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
-    debug!("running lint on document bytes={}", text.len());
+    debug!("running lint on document length={}", text.len());
     if text.trim().is_empty() {
         warn!("received empty document text for linting, returning...");
         return Ok(vec![]);

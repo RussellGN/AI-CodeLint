@@ -13,7 +13,7 @@ pub async fn invoke_gemini(
 ) -> Result<String, String> {
     debug!("preparing Gemini client for model={model} max_tokens={max_tokens}");
     trace!(
-        "gemini request sizes: prompt_bytes={} preamble_bytes={}",
+        "gemini request sizes: prompt length={} preamble length={}",
         prompt.len(),
         preamble.len()
     );
@@ -36,6 +36,6 @@ pub async fn invoke_gemini(
         e.to_string()
     })?;
 
-    trace!("received Gemini response bytes={}", response.len());
+    trace!("received Gemini response length={}", response.len());
     Ok(response)
 }
