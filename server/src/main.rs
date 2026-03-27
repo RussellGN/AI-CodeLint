@@ -3,13 +3,17 @@ mod linter;
 mod lsp;
 
 use log::info;
+use log::LevelFilter;
 use tower_lsp::{LspService, Server};
 
 const GEMINI_API_KEY: &'static str = include_str!("../.env");
 
 #[tokio::main]
 async fn main() {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("trace")).init();
+    env_logger::Builder::new()
+        .filter_level(LevelFilter::Off)
+        .filter_module("ai_codelint", LevelFilter::Trace)
+        .init();
     info!("starting AI CodeLint LSP server");
 
     let stdin = tokio::io::stdin();
