@@ -1,3 +1,4 @@
+use log::{debug, error, trace};
 use rig::client::CompletionClient;
 use rig::completion::Prompt;
 use rig::providers::gemini;
@@ -10,12 +11,31 @@ pub async fn invoke_gemini(
     preamble: &str,
     max_tokens: u64,
 ) -> Result<String, String> {
-    let client = gemini::Client::new(GEMINI_API_KEY).expect("could not build gemini client");
+    debug!("preparing Gemini client for model={model} max_tokens={max_tokens}");
+    trace!(
+        "gemini request sizes: prompt_bytes={} preamble_bytes={}",
+        prompt.len(),
+        preamble.len()
+    );
+
+    let client = gemini::Client::new(GEMINI_API_KEY).map_err(|e| {
+        error!("failed to build Gemini client: {e}");
+        e.to_string()
+    })?;
+
     let agent = client
         .agent(model)
         .preamble(preamble)
         .max_tokens(max_tokens)
         .build();
 
-    agent.prompt(prompt).await.map_err(|e| e.to_string())
+    debug!("sending prompt to Gemini");
+
+    let response = agent.prompt(prompt).await.map_err(|e| {
+        error!("Gemini prompt failed: {e}");
+        e.to_string()
+    })?;
+
+    trace!("received Gemini response bytes={}", response.len());
+    Ok(response)
 }

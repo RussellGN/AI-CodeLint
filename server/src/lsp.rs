@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use log::debug;
+use log::{debug, error, info, trace, warn};
 use tokio::sync::Mutex;
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
@@ -30,7 +30,7 @@ pub struct Backend {
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
-        debug!("initializing server");
+        info!("initializing language server capabilities");
         Ok(InitializeResult {
             server_info: None,
             offset_encoding: None,
@@ -44,13 +44,13 @@ impl LanguageServer for Backend {
     }
 
     async fn shutdown(&self) -> Result<()> {
-        debug!("shutting down server");
+        info!("shutting down language server");
         Ok(())
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
         let uri = params.text_document.uri;
-        debug!("file opened: {}", uri);
+        info!("file opened: {}", uri);
         let mut should_compile = false;
         {
             let mut docs = self.docs_being_watched.lock().await;
@@ -58,10 +58,18 @@ impl LanguageServer for Backend {
             if !is_cached {
                 docs.insert(uri.to_string(), CachedDoc::new(uri.to_string(), vec![]));
                 should_compile = true;
+                debug!("started watching file: {}", uri);
+            } else {
+                trace!("file already in cache: {}", uri);
             };
         }
         if should_compile {
             self.compile_diagnostics(uri).await
+        } else {
+            trace!(
+                "skipping compile_diagnostics on open for unchanged cache: {}",
+                uri
+            );
         }
     }
 
@@ -69,6 +77,7 @@ impl LanguageServer for Backend {
         let uri = params.text_document.uri;
         debug!("file changed: {}", uri);
         let Some(changes) = params.content_changes.first() else {
+            warn!("did_change without content_changes for {}", uri);
             return;
         };
         let mut should_compile = false;
@@ -78,16 +87,26 @@ impl LanguageServer for Backend {
                 if doc.text != changes.text {
                     doc.text = changes.text.clone();
                     should_compile = true;
+                    trace!("cached text updated for {}", uri);
+                } else {
+                    trace!("text unchanged after did_change for {}", uri);
                 }
+            } else {
+                warn!("received change for uncached file: {}", uri);
             }
         }
         if should_compile {
             self.compile_diagnostics(uri).await
+        } else {
+            trace!(
+                "skipping compile_diagnostics because text unchanged: {}",
+                uri
+            );
         }
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
-        debug!("file closed: {}", params.text_document.uri);
+        info!("file closed: {}", params.text_document.uri);
         self.docs_being_watched
             .lock()
             .await
@@ -97,6 +116,7 @@ impl LanguageServer for Backend {
 
 impl Backend {
     async fn compile_diagnostics(&self, doc_uri: Url) {
+        debug!("compiling diagnostics for {}", doc_uri);
         let text = {
             let docs = self.docs_being_watched.lock().await;
             docs.get(doc_uri.as_str()).map(|doc| doc.text.clone())
@@ -104,20 +124,35 @@ impl Backend {
 
         if let Some(text) = text {
             match lint(&text).await {
-                Err(e) => panic!("{e}"),
+                Err(e) => {
+                    error!("lint failed for {}: {}", doc_uri, e);
+                    panic!("{e}")
+                }
                 Ok(errs) => {
+                    debug!("lint returned {} diagnostics for {}", errs.len(), doc_uri);
                     let diagnostics: Vec<Diagnostic> = errs.into_iter().map(|e| e.into()).collect();
                     {
                         let mut docs = self.docs_being_watched.lock().await;
                         if let Some(doc) = docs.get_mut(doc_uri.as_str()) {
                             doc.diagnostics = diagnostics.clone();
+                        } else {
+                            warn!(
+                                "file disappeared from cache before diagnostics update: {}",
+                                doc_uri
+                            );
                         }
                     }
                     self.client
                         .publish_diagnostics(doc_uri, diagnostics, None)
                         .await;
+                    trace!("published diagnostics");
                 }
             }
+        } else {
+            warn!(
+                "cannot compile diagnostics; file not found in cache: {}",
+                doc_uri
+            );
         }
     }
 }
