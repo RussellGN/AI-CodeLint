@@ -13,7 +13,11 @@ async fn main() {
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
 
-    let (service, socket) = LspService::build(|client| lsp::Backend { client }).finish();
+    let (service, socket) = LspService::build(|client| lsp::Backend {
+        client,
+        docs_being_watched: Default::default(),
+    })
+    .finish();
 
     Server::new(stdin, stdout, socket).serve(service).await;
 }
