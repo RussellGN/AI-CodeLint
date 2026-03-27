@@ -126,7 +126,6 @@ impl Backend {
             match lint(&text).await {
                 Err(e) => {
                     error!("lint failed for {}: {}", doc_uri, e);
-                    panic!("{e}")
                 }
                 Ok(errs) => {
                     debug!("lint returned {} diagnostics for {}", errs.len(), doc_uri);
