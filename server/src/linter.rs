@@ -20,7 +20,7 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
 
     debug!("invoking Gemini linter model");
     let res = invoke_gemini(text, "gemini-2.5-flash-lite", preamble, 500).await?;
-    trace!("raw Gemini lint response: {res}");
+    trace!("raw Gemini lint response:\n\n{res}\n");
 
     let errors_found = serde_json::from_str::<Vec<LintResult>>(&extract_json_array_only(&res)?)
         .map_err(|e| {
@@ -28,7 +28,11 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
             e.to_string()
         })?;
 
-    debug!("lint completed with {} diagnostics", errors_found.len());
+    debug!(
+        "lint completed with {} diagnostic{}",
+        errors_found.len(),
+        if errors_found.len() == 1 { "" } else { "s" }
+    );
     Ok(errors_found)
 }
 
