@@ -20,5 +20,6 @@ pub async fn lint(text: &str) -> Result<LintResult, String> {
     debug!("invoking gemini!");
     let overview = invoke_gemini(text, "gemini-2.5-flash-lite", preamble, 80).await?;
     debug!("succesfully invoked gemini!");
+    debug!("overview received: {overview}");
     Ok(LintResult { overview })
 }
