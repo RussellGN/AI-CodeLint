@@ -50,9 +50,14 @@ impl Backend {
     pub async fn is_stale(&self, uri: &str, curr_text: &str) -> Result<bool, String> {
         let docs = self.cached_docs.lock().await;
         match docs.get(uri) {
-            Some(cached_doc) if cached_doc.text == curr_text => Ok(false),
             None => Err(format!("doc not found in cache, uri: {uri}").into()),
-            _ => Ok(true),
+            Some(cached_doc) => {
+                if cached_doc.hash == cache::Document::hash_text(curr_text) {
+                    Ok(false)
+                } else {
+                    Ok(true)
+                }
+            }
         }
     }
 
