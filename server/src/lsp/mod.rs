@@ -1,3 +1,5 @@
+mod cache;
+
 use std::collections::HashMap;
 
 use log::{debug, error, info, trace, warn};
@@ -7,19 +9,7 @@ use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
 
 use crate::linter::{lint, LintResult};
-
-#[derive(Debug)]
-pub struct CachedDoc {
-    text: String,
-    // hash: String,
-    diagnostics: Vec<Diagnostic>,
-}
-
-impl CachedDoc {
-    pub fn new(text: String, diagnostics: Vec<Diagnostic>) -> Self {
-        Self { text, diagnostics }
-    }
-}
+use crate::lsp::cache::CachedDoc;
 
 #[derive(Debug)]
 pub struct Backend {
