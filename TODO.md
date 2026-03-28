@@ -1,6 +1,5 @@
-- determine when linting is triggered
-- remove old docs from cache when cache exceeds **<some_constant>** items
-- work on lint caching
+- use dashmap for docs cache
+- identify constants
 - implement diagnostic ranges
 - abstract ai providers
 - refine ai invocation
