@@ -31,30 +31,17 @@ impl LanguageServer for Backend {
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
         let uri = params.text_document.uri;
-        info!("file opened: {}", uri);
-        let mut should_compile = false;
-        {
-            let mut docs = self.cached_docs.lock().await;
-            let is_cached = docs.contains_key(&uri.to_string());
-            if !is_cached {
-                docs.insert(
-                    uri.to_string(),
-                    cache::Document::new(uri.to_string(), vec![]),
-                );
-                should_compile = true;
-                debug!("started watching file: {}", uri);
-            } else {
-                trace!("file already in cache: {}", uri);
-            };
-        }
-        if should_compile {
-            self.compile_diagnostics(uri).await
+        let uri_str = uri.to_string();
+        info!("file opened: {uri}");
+
+        if self.is_doc_cached(&uri_str).await {
+            trace!("skipping compile_diagnostics on open for unchanged cached doc: {uri_str}",);
         } else {
-            trace!(
-                "skipping compile_diagnostics on open for unchanged cache: {}",
-                uri
-            );
-        }
+            self.cache_doc(&uri_str, cache::Document::new(uri_str.to_string(), vec![]))
+                .await;
+            debug!("started watching file: {uri_str}");
+            self.compile_diagnostics(uri).await;
+        };
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
@@ -62,43 +49,34 @@ impl LanguageServer for Backend {
         debug!("file changed: {}", uri);
 
         if let Some(changes) = params.content_changes.first() {
-            let mut docs = self.cached_docs.lock().await;
-            let Some(cached_doc) = docs.get_mut(uri.as_str()) else {
-                return;
-            };
-            cached_doc.text = changes.text.clone();
+            self.replace_doc_text(uri.as_str(), changes.text.clone())
+                .await;
         } else {
-            warn!("did_change without content_changes for {}", uri);
+            warn!("did_change fired with no content changes for {}", uri);
         };
     }
 
     async fn did_save(&self, params: DidSaveTextDocumentParams) {
         let uri = params.text_document.uri;
         debug!("file saved: {}", uri);
-        let Some(saved_text) = params.text else {
+        let Some(current_text) = params.text else {
             warn!("no text received on 'save', abandoning...");
             return;
         };
 
-        let should_recompile = {
-            let docs = self.cached_docs.lock().await;
-            let Some(cached_doc) = docs.get(uri.as_str()) else {
-                return;
-            };
-            cached_doc.text == saved_text
-        };
-
-        if should_recompile {
-            debug!("content has changed since diagnostics were last compiled, recompiling...");
-            self.compile_diagnostics(uri).await
+        let is_stale = self.is_stale(uri.as_str(), &current_text).await;
+        match is_stale {
+            Ok(true) => {
+                debug!("content has changed since diagnostics were last compiled, recompiling...");
+                self.compile_diagnostics(uri).await
+            }
+            Err(e) => warn!("{e}"),
+            _ => trace!("no new changes to recompile diagnostics for: {uri}"),
         }
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
         info!("file closed: {}", params.text_document.uri);
-        self.cached_docs
-            .lock()
-            .await
-            .remove(params.text_document.uri.as_str());
+        self.prune_docs_cache().await;
     }
 }

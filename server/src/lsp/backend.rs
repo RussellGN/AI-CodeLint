@@ -7,28 +7,69 @@ use tower_lsp::Client;
 
 use crate::linter::{lint, LintResult};
 use crate::lsp::cache;
+use crate::DOCS_CACHE_SIZE;
 
 #[derive(Debug)]
 pub struct Backend {
     pub client: Client,
-    pub cached_docs: Mutex<HashMap<String, cache::Document>>,
+    cached_docs: Mutex<HashMap<String, cache::Document>>,
 }
 
 impl Backend {
-    pub async fn compile_diagnostics(&self, doc_uri: Url) {
-        debug!("compiling diagnostics for {}", doc_uri);
+    pub fn new(client: Client) -> Self {
+        Self {
+            client,
+            cached_docs: Default::default(),
+        }
+    }
+
+    pub async fn prune_docs_cache(&self) {
+        let docs = self.cached_docs.lock().await;
+        if docs.len() >= DOCS_CACHE_SIZE {
+            // TODO: prune
+        }
+    }
+
+    pub async fn is_doc_cached(&self, uri: &str) -> bool {
+        let docs = self.cached_docs.lock().await;
+        docs.contains_key(uri)
+    }
+
+    pub async fn cache_doc(&self, uri: &str, doc: cache::Document) {
+        let mut docs = self.cached_docs.lock().await;
+        docs.insert(uri.to_string(), doc);
+    }
+
+    pub async fn replace_doc_text(&self, uri: &str, new_text: String) {
+        let mut docs = self.cached_docs.lock().await;
+        if let Some(cached_doc) = docs.get_mut(uri) {
+            cached_doc.text = new_text;
+        }
+    }
+
+    pub async fn is_stale(&self, uri: &str, curr_text: &str) -> Result<bool, String> {
+        let docs = self.cached_docs.lock().await;
+        match docs.get(uri) {
+            Some(cached_doc) if cached_doc.text == curr_text => Ok(false),
+            None => Err(format!("doc not found in cache, uri: {uri}").into()),
+            _ => Ok(true),
+        }
+    }
+
+    pub async fn compile_diagnostics(&self, uri: Url) {
+        debug!("compiling diagnostics for {}", uri);
         let text = {
             let docs = self.cached_docs.lock().await;
-            docs.get(doc_uri.as_str()).map(|doc| doc.text.clone())
+            docs.get(uri.as_str()).map(|doc| doc.text.clone())
         };
 
         if let Some(text) = text {
             match lint(&text).await {
                 Err(e) => {
-                    error!("lint failed for {}: {}", doc_uri, e);
+                    error!("lint failed for {}: {}", uri, e);
                 }
                 Ok(errs) => {
-                    debug!("lint returned {} diagnostics for {}", errs.len(), doc_uri);
+                    debug!("lint returned {} diagnostics for {}", errs.len(), uri);
                     let diagnostics: Vec<Diagnostic> = errs.into_iter().map(|e| e.into()).collect();
                     let text_lines_count: u32 = text
                         .lines()
@@ -40,7 +81,7 @@ impl Backend {
                         Range::new(Position::new(0, 0), Position::new(text_lines_count + 1, 0));
                     {
                         let mut docs = self.cached_docs.lock().await;
-                        if let Some(doc) = docs.get_mut(doc_uri.as_str()) {
+                        if let Some(doc) = docs.get_mut(uri.as_str()) {
                             doc.diagnostics = diagnostics
                                 .clone()
                                 .into_iter()
@@ -52,12 +93,12 @@ impl Backend {
                         } else {
                             warn!(
                                 "file disappeared from cache before diagnostics update: {}",
-                                doc_uri
+                                uri
                             );
                         }
                     }
                     self.client
-                        .publish_diagnostics(doc_uri, diagnostics, None)
+                        .publish_diagnostics(uri, diagnostics, None)
                         .await;
                     trace!("published diagnostics");
                 }
@@ -65,7 +106,7 @@ impl Backend {
         } else {
             warn!(
                 "cannot compile diagnostics; file not found in cache: {}",
-                doc_uri
+                uri
             );
         }
     }

@@ -6,7 +6,10 @@ use log::info;
 use log::LevelFilter;
 use tower_lsp::{LspService, Server};
 
+use crate::lsp::Backend;
+
 const GEMINI_API_KEY: &'static str = include_str!("../.env");
+const DOCS_CACHE_SIZE: usize = 20;
 
 #[tokio::main]
 async fn main() {
@@ -19,12 +22,7 @@ async fn main() {
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();
 
-    let (service, socket) = LspService::build(|client| lsp::Backend {
-        client,
-        cached_docs: Default::default(),
-    })
-    .finish();
-
+    let (service, socket) = LspService::build(|client| Backend::new(client)).finish();
     info!("LSP service initialized, waiting for editor requests");
 
     Server::new(stdin, stdout, socket).serve(service).await;
