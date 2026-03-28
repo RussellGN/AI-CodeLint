@@ -1,4 +1,5 @@
 - determine when linting is triggered
+- remove old docs from cache when cache exceeds **<some_constant>** items
 - work on lint caching
 - implement diagnostic ranges
 - abstract ai providers
