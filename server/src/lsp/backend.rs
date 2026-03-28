@@ -5,22 +5,20 @@ use tokio::sync::Mutex;
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Position, Range, Url};
 use tower_lsp::Client;
 
-use crate::{
-    linter::{lint, LintResult},
-    lsp::cache::CachedDoc,
-};
+use crate::linter::{lint, LintResult};
+use crate::lsp::cache;
 
 #[derive(Debug)]
 pub struct Backend {
     pub client: Client,
-    pub docs_being_watched: Mutex<HashMap<String, CachedDoc>>,
+    pub cached_docs: Mutex<HashMap<String, cache::Document>>,
 }
 
 impl Backend {
     pub async fn compile_diagnostics(&self, doc_uri: Url) {
         debug!("compiling diagnostics for {}", doc_uri);
         let text = {
-            let docs = self.docs_being_watched.lock().await;
+            let docs = self.cached_docs.lock().await;
             docs.get(doc_uri.as_str()).map(|doc| doc.text.clone())
         };
 
@@ -41,7 +39,7 @@ impl Backend {
                     let full_page_range =
                         Range::new(Position::new(0, 0), Position::new(text_lines_count + 1, 0));
                     {
-                        let mut docs = self.docs_being_watched.lock().await;
+                        let mut docs = self.cached_docs.lock().await;
                         if let Some(doc) = docs.get_mut(doc_uri.as_str()) {
                             doc.diagnostics = diagnostics
                                 .clone()

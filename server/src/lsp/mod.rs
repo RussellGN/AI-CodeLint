@@ -7,7 +7,6 @@ use tower_lsp::lsp_types::*;
 use tower_lsp::LanguageServer;
 
 pub use backend::Backend;
-use cache::CachedDoc;
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
@@ -35,10 +34,13 @@ impl LanguageServer for Backend {
         info!("file opened: {}", uri);
         let mut should_compile = false;
         {
-            let mut docs = self.docs_being_watched.lock().await;
+            let mut docs = self.cached_docs.lock().await;
             let is_cached = docs.contains_key(&uri.to_string());
             if !is_cached {
-                docs.insert(uri.to_string(), CachedDoc::new(uri.to_string(), vec![]));
+                docs.insert(
+                    uri.to_string(),
+                    cache::Document::new(uri.to_string(), vec![]),
+                );
                 should_compile = true;
                 debug!("started watching file: {}", uri);
             } else {
@@ -64,7 +66,7 @@ impl LanguageServer for Backend {
         };
         let mut should_compile = false;
         {
-            let mut cached_docs = self.docs_being_watched.lock().await;
+            let mut cached_docs = self.cached_docs.lock().await;
             if let Some(doc) = cached_docs.get_mut(uri.as_str()) {
                 if doc.text != changes.text {
                     doc.text = changes.text.clone();
@@ -89,7 +91,7 @@ impl LanguageServer for Backend {
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
         info!("file closed: {}", params.text_document.uri);
-        self.docs_being_watched
+        self.cached_docs
             .lock()
             .await
             .remove(params.text_document.uri.as_str());

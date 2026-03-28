@@ -21,7 +21,7 @@ async fn main() {
 
     let (service, socket) = LspService::build(|client| lsp::Backend {
         client,
-        docs_being_watched: Default::default(),
+        cached_docs: Default::default(),
     })
     .finish();
 
