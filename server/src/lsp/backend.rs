@@ -40,10 +40,23 @@ impl Backend {
         docs.insert(uri.to_string(), doc);
     }
 
+    // TODO: recompute hash, warn when not found
     pub async fn replace_doc_text(&self, uri: &str, new_text: String) {
         let mut docs = self.cached_docs.lock().await;
         if let Some(cached_doc) = docs.get_mut(uri) {
             cached_doc.text = new_text;
+        }
+    }
+
+    pub async fn replace_doc_diags(&self, uri: &str, diags: Vec<Diagnostic>) -> Result<(), String> {
+        let mut docs = self.cached_docs.lock().await;
+        match docs.get_mut(uri) {
+            None => Err(format!("doc not found in cache, uri: {uri}")),
+            Some(doc) => {
+                doc.diagnostics = diags;
+                doc.diagnostics_version += 1;
+                Ok(())
+            }
         }
     }
 
@@ -61,58 +74,53 @@ impl Backend {
         }
     }
 
+    fn full_text_range(text: &str) -> Range {
+        let lines_count: u32 = text
+            .lines()
+            .collect::<Vec<_>>()
+            .len()
+            .try_into()
+            .expect("could not narrow usize into u32");
+        Range::new(Position::new(0, 0), Position::new(lines_count + 1, 0))
+    }
+
     pub async fn compile_diagnostics(&self, uri: Url) {
         debug!("compiling diagnostics for {}", uri);
-        let text = {
+        let Some(text_to_compile) = ({
             let docs = self.cached_docs.lock().await;
             docs.get(uri.as_str()).map(|doc| doc.text.clone())
+        }) else {
+            warn!("cannot compile diagnostics; file not found in cache: {uri}");
+            return;
         };
 
-        if let Some(text) = text {
-            match lint(&text).await {
-                Err(e) => {
-                    error!("lint failed for {}: {}", uri, e);
+        match lint(&text_to_compile).await {
+            Err(e) => error!("lint failed for {uri}: {e}"),
+            Ok(errs) => {
+                debug!("lint returned {} diagnostics for {uri}", errs.len());
+                let full_page_range = Self::full_text_range(&text_to_compile);
+
+                let diagnostics: Vec<Diagnostic> = errs
+                    .into_iter()
+                    .map(|e| {
+                        let mut d: Diagnostic = e.into();
+                        d.range = full_page_range; // TODO: remove when confident of AI range output
+                        d
+                    })
+                    .collect();
+
+                if let Err(e) = self
+                    .replace_doc_diags(uri.as_str(), diagnostics.clone())
+                    .await
+                {
+                    warn!("{e}")
                 }
-                Ok(errs) => {
-                    debug!("lint returned {} diagnostics for {}", errs.len(), uri);
-                    let diagnostics: Vec<Diagnostic> = errs.into_iter().map(|e| e.into()).collect();
-                    let text_lines_count: u32 = text
-                        .lines()
-                        .collect::<Vec<_>>()
-                        .len()
-                        .try_into()
-                        .expect("could not narrow usize into u32");
-                    let full_page_range =
-                        Range::new(Position::new(0, 0), Position::new(text_lines_count + 1, 0));
-                    {
-                        let mut docs = self.cached_docs.lock().await;
-                        if let Some(doc) = docs.get_mut(uri.as_str()) {
-                            doc.diagnostics = diagnostics
-                                .clone()
-                                .into_iter()
-                                .map(|mut d| {
-                                    d.range = full_page_range;
-                                    d
-                                })
-                                .collect();
-                        } else {
-                            warn!(
-                                "file disappeared from cache before diagnostics update: {}",
-                                uri
-                            );
-                        }
-                    }
-                    self.client
-                        .publish_diagnostics(uri, diagnostics, None)
-                        .await;
-                    trace!("published diagnostics");
-                }
+
+                self.client
+                    .publish_diagnostics(uri, diagnostics, None)
+                    .await;
+                trace!("published diagnostics");
             }
-        } else {
-            warn!(
-                "cannot compile diagnostics; file not found in cache: {}",
-                uri
-            );
         }
     }
 }

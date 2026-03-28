@@ -6,6 +6,7 @@ use tower_lsp::lsp_types::Diagnostic;
 pub struct Document {
     pub hash: u64,
     pub text: String,
+    pub diagnostics_version: u32,
     pub diagnostics: Vec<Diagnostic>,
 }
 
@@ -19,6 +20,7 @@ impl Document {
     pub fn new(text: String, diagnostics: Vec<Diagnostic>) -> Self {
         Self {
             hash: Self::hash_text(&text),
+            diagnostics_version: 0,
             diagnostics,
             text,
         }
