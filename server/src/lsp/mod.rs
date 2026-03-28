@@ -1,5 +1,4 @@
 mod backend;
-mod cache;
 
 use log::{debug, info, trace, warn};
 use tower_lsp::jsonrpc::Result;
@@ -7,6 +6,8 @@ use tower_lsp::lsp_types::*;
 use tower_lsp::LanguageServer;
 
 pub use backend::Backend;
+
+use crate::lsp::backend::Document;
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
@@ -37,7 +38,7 @@ impl LanguageServer for Backend {
         if self.is_doc_cached(&uri_str).await {
             trace!("skipping compile_diagnostics on open for unchanged cached doc: {uri_str}",);
         } else {
-            self.cache_doc(&uri_str, cache::Document::new(uri_str.to_string(), vec![]))
+            self.cache_doc(&uri_str, Document::new(uri_str.to_string(), vec![]))
                 .await;
             debug!("started watching file: {uri_str}");
             self.compile_diagnostics(uri).await;

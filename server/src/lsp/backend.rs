@@ -6,13 +6,39 @@ use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Position, Range, Url}
 use tower_lsp::Client;
 
 use crate::linter::{lint, LintResult};
-use crate::lsp::cache;
 use crate::DOCS_CACHE_SIZE;
+
+use std::hash::{DefaultHasher, Hash, Hasher};
+
+#[derive(Debug)]
+pub struct Document {
+    pub hash: u64,
+    pub text: String,
+    pub diagnostics_version: u32,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+impl Document {
+    pub fn hash_text(text: &str) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        text.hash(&mut hasher);
+        hasher.finish()
+    }
+
+    pub fn new(text: String, diagnostics: Vec<Diagnostic>) -> Self {
+        Self {
+            hash: Self::hash_text(&text),
+            diagnostics_version: 0,
+            diagnostics,
+            text,
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct Backend {
     pub client: Client,
-    cached_docs: Mutex<HashMap<String, cache::Document>>,
+    cached_docs: Mutex<HashMap<String, Document>>,
 }
 
 impl Backend {
@@ -42,7 +68,7 @@ impl Backend {
         docs.contains_key(uri)
     }
 
-    pub async fn cache_doc(&self, uri: &str, doc: cache::Document) {
+    pub async fn cache_doc(&self, uri: &str, doc: Document) {
         let mut docs = self.cached_docs.lock().await;
         docs.insert(uri.to_string(), doc);
         trace!("cached docs: {:#?}", docs.keys().collect::<Vec<_>>());
@@ -51,7 +77,7 @@ impl Backend {
     pub async fn replace_doc_text(&self, uri: &str, new_text: String) {
         let mut docs = self.cached_docs.lock().await;
         if let Some(cached_doc) = docs.get_mut(uri) {
-            cached_doc.hash = cache::Document::hash_text(&new_text);
+            cached_doc.hash = Document::hash_text(&new_text);
             cached_doc.text = new_text;
         } else {
             warn!("could not find doc {uri} for text replacement")
@@ -75,7 +101,7 @@ impl Backend {
         match docs.get(uri) {
             None => Err(format!("doc not found in cache, uri: {uri}").into()),
             Some(cached_doc) => {
-                if cached_doc.hash == cache::Document::hash_text(curr_text) {
+                if cached_doc.hash == Document::hash_text(curr_text) {
                     Ok(false)
                 } else {
                     Ok(true)
