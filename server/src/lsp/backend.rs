@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use log::{debug, error, trace, warn};
 use tokio::sync::Mutex;
+use tokio::time::Instant;
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Position, Range, Url};
 use tower_lsp::Client;
 
@@ -14,7 +15,7 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 pub struct Document {
     pub hash: u64,
     pub text: String,
-    pub diagnostics_version: u32,
+    pub diagnostics_version: Instant,
     pub diagnostics: Vec<Diagnostic>,
 }
 
@@ -28,7 +29,7 @@ impl Document {
     pub fn new(text: String, diagnostics: Vec<Diagnostic>) -> Self {
         Self {
             hash: Self::hash_text(&text),
-            diagnostics_version: 0,
+            diagnostics_version: Instant::now(),
             diagnostics,
             text,
         }
@@ -90,7 +91,7 @@ impl Backend {
             None => Err(format!("doc not found in cache, uri: {uri}")),
             Some(doc) => {
                 doc.diagnostics = diags;
-                doc.diagnostics_version += 1;
+                doc.diagnostics_version = Instant::now();
                 Ok(())
             }
         }
