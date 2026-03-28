@@ -24,9 +24,16 @@ impl Backend {
     }
 
     pub async fn prune_docs_cache(&self) {
-        let docs = self.cached_docs.lock().await;
+        let mut docs = self.cached_docs.lock().await;
         if docs.len() >= DOCS_CACHE_SIZE {
-            // TODO: prune
+            trace!("cache is at capacity: {}", docs.len());
+            let Some(stale_entry) = docs.iter().min_by_key(|(_, d)| d.diagnostics_version) else {
+                return;
+            };
+            let stale_entry_key = stale_entry.0.clone();
+            docs.remove(&stale_entry_key);
+            trace!("removed stale doc from cache: {stale_entry_key}");
+            trace!("cached docs: {:#?}", docs.keys().collect::<Vec<_>>());
         }
     }
 
@@ -38,6 +45,7 @@ impl Backend {
     pub async fn cache_doc(&self, uri: &str, doc: cache::Document) {
         let mut docs = self.cached_docs.lock().await;
         docs.insert(uri.to_string(), doc);
+        trace!("cached docs: {:#?}", docs.keys().collect::<Vec<_>>());
     }
 
     pub async fn replace_doc_text(&self, uri: &str, new_text: String) {
