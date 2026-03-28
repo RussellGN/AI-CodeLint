@@ -60,32 +60,37 @@ impl LanguageServer for Backend {
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         let uri = params.text_document.uri;
         debug!("file changed: {}", uri);
-        let Some(changes) = params.content_changes.first() else {
+
+        if let Some(changes) = params.content_changes.first() {
+            let mut docs = self.cached_docs.lock().await;
+            let Some(cached_doc) = docs.get_mut(uri.as_str()) else {
+                return;
+            };
+            cached_doc.text = changes.text.clone();
+        } else {
             warn!("did_change without content_changes for {}", uri);
+        };
+    }
+
+    async fn did_save(&self, params: DidSaveTextDocumentParams) {
+        let uri = params.text_document.uri;
+        debug!("file saved: {}", uri);
+        let Some(saved_text) = params.text else {
+            warn!("no text received on 'save', abandoning...");
             return;
         };
-        let mut should_compile = false;
-        {
-            let mut cached_docs = self.cached_docs.lock().await;
-            if let Some(doc) = cached_docs.get_mut(uri.as_str()) {
-                if doc.text != changes.text {
-                    doc.text = changes.text.clone();
-                    should_compile = true;
-                    trace!("cached text updated for {}", uri);
-                } else {
-                    trace!("text unchanged after did_change for {}", uri);
-                }
-            } else {
-                warn!("received change for uncached file: {}", uri);
-            }
-        }
-        if should_compile {
+
+        let should_recompile = {
+            let docs = self.cached_docs.lock().await;
+            let Some(cached_doc) = docs.get(uri.as_str()) else {
+                return;
+            };
+            cached_doc.text == saved_text
+        };
+
+        if should_recompile {
+            debug!("content has changed since diagnostics were last compiled, recompiling...");
             self.compile_diagnostics(uri).await
-        } else {
-            trace!(
-                "skipping compile_diagnostics because text unchanged: {}",
-                uri
-            );
         }
     }
 
