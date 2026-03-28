@@ -40,11 +40,13 @@ impl Backend {
         docs.insert(uri.to_string(), doc);
     }
 
-    // TODO: recompute hash, warn when not found
     pub async fn replace_doc_text(&self, uri: &str, new_text: String) {
         let mut docs = self.cached_docs.lock().await;
         if let Some(cached_doc) = docs.get_mut(uri) {
+            cached_doc.hash = cache::Document::hash_text(&new_text);
             cached_doc.text = new_text;
+        } else {
+            warn!("could not find doc {uri} for text replacement")
         }
     }
 
