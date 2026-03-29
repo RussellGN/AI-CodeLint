@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
+use dashmap::DashMap;
 use log::{debug, error, trace, warn};
-use tokio::sync::Mutex;
 use tokio::time::Instant;
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Position, Range, Url};
 use tower_lsp::Client;
@@ -39,7 +37,7 @@ impl Document {
 #[derive(Debug)]
 pub struct Backend {
     pub client: Client,
-    cached_docs: Mutex<HashMap<String, Document>>,
+    cached_docs: DashMap<String, Document>,
 }
 
 impl Backend {
@@ -51,33 +49,42 @@ impl Backend {
     }
 
     pub async fn prune_docs_cache(&self) {
-        let mut docs = self.cached_docs.lock().await;
-        if docs.len() >= DOCS_CACHE_SIZE {
-            trace!("cache is at capacity: {}", docs.len());
-            let Some(stale_entry) = docs.iter().min_by_key(|(_, d)| d.diagnostics_version) else {
+        if self.cached_docs.len() >= DOCS_CACHE_SIZE {
+            trace!("cache is at capacity: {}", self.cached_docs.len());
+            let Some(stale_entry) = self
+                .cached_docs
+                .iter()
+                .min_by_key(|d| d.diagnostics_version)
+            else {
                 return;
             };
-            let stale_entry_key = stale_entry.0.clone();
-            docs.remove(&stale_entry_key);
+            let stale_entry_key = stale_entry.key();
+            self.cached_docs.remove(stale_entry_key);
             trace!("removed stale doc from cache: {stale_entry_key}");
-            trace!("cached docs: {:#?}", docs.keys().collect::<Vec<_>>());
+            self.print_cache()
         }
     }
 
     pub async fn is_doc_cached(&self, uri: &str) -> bool {
-        let docs = self.cached_docs.lock().await;
-        docs.contains_key(uri)
+        self.cached_docs.contains_key(uri)
+    }
+
+    fn print_cache(&self) {
+        let cache = self
+            .cached_docs
+            .iter()
+            .map(|d| d.key().clone())
+            .collect::<Vec<String>>();
+        trace!("cached docs: {cache:#?}",);
     }
 
     pub async fn cache_doc(&self, uri: &str, doc: Document) {
-        let mut docs = self.cached_docs.lock().await;
-        docs.insert(uri.to_string(), doc);
-        trace!("cached docs: {:#?}", docs.keys().collect::<Vec<_>>());
+        self.cached_docs.insert(uri.to_string(), doc);
+        self.print_cache()
     }
 
     pub async fn replace_doc_text(&self, uri: &str, new_text: String) {
-        let mut docs = self.cached_docs.lock().await;
-        if let Some(cached_doc) = docs.get_mut(uri) {
+        if let Some(mut cached_doc) = self.cached_docs.get_mut(uri) {
             cached_doc.hash = Document::hash_text(&new_text);
             cached_doc.text = new_text;
         } else {
@@ -86,10 +93,9 @@ impl Backend {
     }
 
     pub async fn replace_doc_diags(&self, uri: &str, diags: Vec<Diagnostic>) -> Result<(), String> {
-        let mut docs = self.cached_docs.lock().await;
-        match docs.get_mut(uri) {
+        match self.cached_docs.get_mut(uri) {
             None => Err(format!("doc not found in cache, uri: {uri}")),
-            Some(doc) => {
+            Some(mut doc) => {
                 doc.diagnostics = diags;
                 doc.diagnostics_version = Instant::now();
                 Ok(())
@@ -98,8 +104,7 @@ impl Backend {
     }
 
     pub async fn is_stale(&self, uri: &str, curr_text: &str) -> Result<bool, String> {
-        let docs = self.cached_docs.lock().await;
-        match docs.get(uri) {
+        match self.cached_docs.get(uri) {
             None => Err(format!("doc not found in cache, uri: {uri}").into()),
             Some(cached_doc) => {
                 if cached_doc.hash == Document::hash_text(curr_text) {
@@ -124,8 +129,9 @@ impl Backend {
     pub async fn compile_diagnostics(&self, uri: Url) {
         debug!("compiling diagnostics for {}", uri);
         let Some(text_to_compile) = ({
-            let docs = self.cached_docs.lock().await;
-            docs.get(uri.as_str()).map(|doc| doc.text.clone())
+            self.cached_docs
+                .get(uri.as_str())
+                .map(|doc| doc.text.clone())
         }) else {
             warn!("cannot compile diagnostics; file not found in cache: {uri}");
             return;
