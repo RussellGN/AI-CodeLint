@@ -8,16 +8,17 @@ use tower_lsp::{LspService, Server};
 
 use crate::lsp::Backend;
 
-const GEMINI_API_KEY: &'static str = include_str!("../.env");
+const GEMINI_API_KEY: &str = include_str!("../.env");
 const DOCS_CACHE_SIZE: usize = 20;
+const CRATE_NAME: &str = "ai_codelint";
 
 #[tokio::main]
 async fn main() {
     env_logger::Builder::new()
         .filter_level(LevelFilter::Off)
-        .filter_module("ai_codelint", LevelFilter::Trace)
+        .filter_module(CRATE_NAME, LevelFilter::Trace)
         .init();
-    info!("starting AI CodeLint LSP server");
+    info!("starting {CRATE_NAME} LSP server");
 
     let stdin = tokio::io::stdin();
     let stdout = tokio::io::stdout();

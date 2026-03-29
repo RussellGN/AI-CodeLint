@@ -7,7 +7,7 @@ use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Position, Range, Url}
 use tower_lsp::Client;
 
 use crate::linter::{lint, LintResult};
-use crate::DOCS_CACHE_SIZE;
+use crate::{CRATE_NAME, DOCS_CACHE_SIZE};
 
 #[derive(Debug)]
 pub struct Document {
@@ -125,7 +125,7 @@ impl Backend {
             .collect::<Vec<_>>()
             .len()
             .try_into()
-            .expect("could not narrow usize into u32");
+            .expect("could not narrow full text line count");
         Range::new(Position::new(0, 0), Position::new(lines_count + 1, 0))
     }
 
@@ -189,7 +189,7 @@ impl From<LintResult> for Diagnostic {
             range: placeholder_range,
             message: value.overview,
             severity: Some(DiagnosticSeverity::INFORMATION),
-            source: Some(String::from("AI CodeLint")),
+            source: Some(String::from(CRATE_NAME)),
             tags: None,
             data: None,
             code: None,
