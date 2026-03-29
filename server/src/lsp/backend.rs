@@ -37,41 +37,37 @@ impl Document {
 #[derive(Debug)]
 pub struct Backend {
     pub client: Client,
-    cached_docs: DashMap<String, Document>,
+    cache: DashMap<String, Document>,
 }
 
 impl Backend {
     pub fn new(client: Client) -> Self {
         Self {
             client,
-            cached_docs: Default::default(),
+            cache: Default::default(),
         }
     }
 
     pub async fn prune_docs_cache(&self) {
-        if self.cached_docs.len() >= DOCS_CACHE_SIZE {
-            trace!("cache is at capacity: {}", self.cached_docs.len());
-            let Some(stale_entry) = self
-                .cached_docs
-                .iter()
-                .min_by_key(|d| d.diagnostics_version)
-            else {
+        if self.cache.len() >= DOCS_CACHE_SIZE {
+            trace!("cache is at capacity: {}", self.cache.len());
+            let Some(stale_entry) = self.cache.iter().min_by_key(|d| d.diagnostics_version) else {
                 return;
             };
             let stale_entry_key = stale_entry.key();
-            self.cached_docs.remove(stale_entry_key);
+            self.cache.remove(stale_entry_key);
             trace!("removed stale doc from cache: {stale_entry_key}");
             self.print_cache()
         }
     }
 
     pub async fn is_doc_cached(&self, uri: &str) -> bool {
-        self.cached_docs.contains_key(uri)
+        self.cache.contains_key(uri)
     }
 
     fn print_cache(&self) {
         let cache = self
-            .cached_docs
+            .cache
             .iter()
             .map(|d| d.key().clone())
             .collect::<Vec<String>>();
@@ -79,12 +75,12 @@ impl Backend {
     }
 
     pub async fn cache_doc(&self, uri: &str, doc: Document) {
-        self.cached_docs.insert(uri.to_string(), doc);
+        self.cache.insert(uri.to_string(), doc);
         self.print_cache()
     }
 
     pub async fn replace_doc_text(&self, uri: &str, new_text: String) {
-        if let Some(mut cached_doc) = self.cached_docs.get_mut(uri) {
+        if let Some(mut cached_doc) = self.cache.get_mut(uri) {
             cached_doc.hash = Document::hash_text(&new_text);
             cached_doc.text = new_text;
         } else {
@@ -93,7 +89,7 @@ impl Backend {
     }
 
     pub async fn replace_doc_diags(&self, uri: &str, diags: Vec<Diagnostic>) -> Result<(), String> {
-        match self.cached_docs.get_mut(uri) {
+        match self.cache.get_mut(uri) {
             None => Err(format!("doc not found in cache, uri: {uri}")),
             Some(mut doc) => {
                 doc.diagnostics = diags;
@@ -104,7 +100,7 @@ impl Backend {
     }
 
     pub async fn is_stale(&self, uri: &str, curr_text: &str) -> Result<bool, String> {
-        match self.cached_docs.get(uri) {
+        match self.cache.get(uri) {
             None => Err(format!("doc not found in cache, uri: {uri}").into()),
             Some(cached_doc) => {
                 if cached_doc.hash == Document::hash_text(curr_text) {
@@ -128,11 +124,8 @@ impl Backend {
 
     pub async fn compile_diagnostics(&self, uri: Url) {
         debug!("compiling diagnostics for {}", uri);
-        let Some(text_to_compile) = ({
-            self.cached_docs
-                .get(uri.as_str())
-                .map(|doc| doc.text.clone())
-        }) else {
+        let Some(text_to_compile) = ({ self.cache.get(uri.as_str()).map(|doc| doc.text.clone()) })
+        else {
             warn!("cannot compile diagnostics; file not found in cache: {uri}");
             return;
         };
