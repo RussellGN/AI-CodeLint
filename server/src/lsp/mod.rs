@@ -74,12 +74,12 @@ impl LanguageServer for Backend {
 
         let is_stale = self.is_stale(uri.as_str(), &current_text).await;
         match is_stale {
+            Err(e) => warn!("{e}"),
+            Ok(false) => trace!("no new changes to recompile diagnostics for: {uri}"),
             Ok(true) => {
                 debug!("content has changed since diagnostics were last compiled, recompiling...");
                 self.compile_diagnostics(uri).await
             }
-            Err(e) => warn!("{e}"),
-            _ => trace!("no new changes to recompile diagnostics for: {uri}"),
         }
     }
 
