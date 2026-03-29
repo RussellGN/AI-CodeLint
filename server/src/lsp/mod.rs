@@ -5,9 +5,8 @@ use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::LanguageServer;
 
-pub use backend::Backend;
-
 use crate::lsp::backend::Document;
+pub use backend::Backend;
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {

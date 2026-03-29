@@ -1,3 +1,5 @@
+use std::hash::{DefaultHasher, Hash, Hasher};
+
 use dashmap::DashMap;
 use log::{debug, error, trace, warn};
 use tokio::time::Instant;
@@ -6,8 +8,6 @@ use tower_lsp::Client;
 
 use crate::linter::{lint, LintResult};
 use crate::DOCS_CACHE_SIZE;
-
-use std::hash::{DefaultHasher, Hash, Hasher};
 
 #[derive(Debug)]
 pub struct Document {

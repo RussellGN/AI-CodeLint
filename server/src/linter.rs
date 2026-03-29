@@ -1,6 +1,7 @@
-use crate::genai::invoke_gemini;
 use log::{debug, error, trace, warn};
 use serde::Deserialize;
+
+use crate::genai::invoke_gemini;
 
 #[derive(Deserialize)]
 pub struct LintResult {
