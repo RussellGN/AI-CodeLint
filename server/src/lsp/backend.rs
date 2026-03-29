@@ -13,6 +13,8 @@ use crate::DOCS_CACHE_SIZE;
 pub struct Document {
     pub hash: u64,
     pub text: String,
+    /// Text hash for __last computed__ diagnostics
+    pub diagnostics_hash: Option<u64>,
     pub diagnostics_version: Instant,
     pub diagnostics: Vec<Diagnostic>,
 }
@@ -28,6 +30,7 @@ impl Document {
         Self {
             hash: Self::hash_text(&text),
             diagnostics_version: Instant::now(),
+            diagnostics_hash: None,
             diagnostics,
             text,
         }
@@ -94,6 +97,7 @@ impl Backend {
             Some(mut doc) => {
                 doc.diagnostics = diags;
                 doc.diagnostics_version = Instant::now();
+                doc.diagnostics_hash = Some(doc.hash);
                 Ok(())
             }
         }
@@ -103,7 +107,10 @@ impl Backend {
         match self.cache.get(uri) {
             None => Err(format!("doc not found in cache, uri: {uri}").into()),
             Some(cached_doc) => {
-                if cached_doc.hash == Document::hash_text(curr_text) {
+                if cached_doc
+                    .diagnostics_hash
+                    .is_some_and(|hash| hash == Document::hash_text(curr_text))
+                {
                     Ok(false)
                 } else {
                     Ok(true)
