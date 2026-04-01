@@ -1,7 +1,7 @@
 use log::{debug, error, trace, warn};
 use serde::Deserialize;
 
-use crate::genai::invoke_gemini;
+use crate::inference::invoke_model;
 use crate::CRATE_NAME;
 
 #[derive(Deserialize)]
@@ -21,7 +21,7 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
     let preamble = format!("You are {CRATE_NAME}. Find only real runtime/behavior logic bugs that survive compilation within the provided code. Ignore style, syntax, type, or IDE/compiler-detectable issues. Return JSON only: [{{\"overview\":\"string\",\"start_line\":integer,\"end_line\":integer}}]. Use zero-based line numbers. If none, return exactly []. Else return at most 3 items. Each overview: concrete bug + why behavior breaks; no markdown; no speculation. Do not inlcude whitespace in returned json.");
 
     debug!("invoking Gemini linter model");
-    let res = invoke_gemini(text, "gemini-2.5-flash-lite", &preamble, 500).await?;
+    let res = invoke_model(text, "gemini-2.5-flash-lite", &preamble, 500).await?;
     trace!("raw Gemini lint response:\n\n{res}\n");
 
     let errors_found = serde_json::from_str::<Vec<LintResult>>(&extract_json_array_only(&res)?)

@@ -1,4 +1,4 @@
-mod genai;
+mod inference;
 mod linter;
 mod lsp;
 
@@ -8,7 +8,7 @@ use tower_lsp::{LspService, Server};
 
 use crate::lsp::Backend;
 
-const GEMINI_API_KEY: &str = include_str!("../.env");
+const OPENROUTER_API_KEY: &str = include_str!("../.env");
 const DOCS_CACHE_SIZE: usize = 20;
 const CRATE_NAME: &str = "ai_codelint";
 
