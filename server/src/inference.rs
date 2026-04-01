@@ -23,7 +23,7 @@ pub async fn invoke_model(
     let client = Client::with_config(config);
 
     let req = CreateResponseArgs::default()
-        .prompt(prompt)
+        .input(prompt)
         .model(model)
         .instructions(preamble)
         .max_output_tokens(max_tokens)
