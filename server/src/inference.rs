@@ -3,7 +3,7 @@ use async_openai::types::responses::CreateResponseArgs;
 use async_openai::Client;
 use log::{debug, error, trace};
 
-use crate::OPENROUTER_API_KEY;
+use crate::{OPENROUTER_API_KEY, OPENROUTER_BASE_URL};
 
 pub async fn invoke_model(
     prompt: &str,
@@ -17,7 +17,7 @@ pub async fn invoke_model(
     );
 
     let config = OpenAIConfig::new()
-        .with_api_base("https://openrouter.ai/api/v1/chat/completions")
+        .with_api_base(OPENROUTER_BASE_URL)
         .with_api_key(OPENROUTER_API_KEY);
 
     let client = Client::with_config(config);

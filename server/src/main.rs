@@ -8,6 +8,7 @@ use tower_lsp::{LspService, Server};
 
 use crate::lsp::Backend;
 
+const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
 const OPENROUTER_API_KEY: &str = include_str!("../.env");
 const DOCS_CACHE_SIZE: usize = 20;
 const CRATE_NAME: &str = "ai_codelint";
