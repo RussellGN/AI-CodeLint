@@ -1,5 +1,4 @@
-- abstract ai providers
-- refine ai invocation
+- refine inference invocation
 - implement diagnostic ranges
 - map ai response to complete diagnostics data
 
