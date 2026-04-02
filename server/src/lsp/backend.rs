@@ -159,6 +159,8 @@ impl Backend {
                     warn!("{e}")
                 }
 
+                trace!("{diagnostics:#?}");
+
                 self.client
                     .publish_diagnostics(uri, diagnostics, None)
                     .await;
