@@ -12,5 +12,6 @@ log = "0.4.14"
 env_logger = "0.11.5"
 dashmap = "6.1.0"
 async-openai = { version = "0.34.0", features = ["chat-completion", "responses"] }
+clap = { version = "4.6.0", features = ["derive"] }
 
 
