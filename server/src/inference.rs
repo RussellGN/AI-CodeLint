@@ -1,6 +1,6 @@
-use async_openai::config::OpenAIConfig;
-use async_openai::types::responses::CreateResponseArgs;
+use async_openai::types::responses::{CreateResponseArgs, ReasoningArgs};
 use async_openai::Client;
+use async_openai::{config::OpenAIConfig, types::responses::Reasoning};
 use log::{debug, error, trace};
 
 use crate::{OPENROUTER_API_KEY, OPENROUTER_BASE_URL};
@@ -11,9 +11,9 @@ pub async fn invoke_model(
     preamble: &str,
     max_tokens: u32,
 ) -> Result<String, String> {
-    debug!("invoking model '{model}' | max tokens={max_tokens} | request lengths: prompt={}, preamble={}",
-        prompt.len(),
-        preamble.len()
+    debug!("invoking model '{model}' | max tokens={max_tokens} | estimate request tokens: prompt={}, preamble={}",
+        prompt.estimate_token_count(),
+        preamble.estimate_token_count()
     );
 
     let config = OpenAIConfig::new()
@@ -32,17 +32,28 @@ pub async fn invoke_model(
 
     debug!("sending request to {model}");
 
-    let res = client
-        .responses()
-        .create(req)
-        .await
-        .map_err(|e| {
-            error!("request failed: {e}");
-            e.to_string()
-        })?
-        .output_text()
-        .expect("no response text");
+    let res = client.responses().create(req).await.map_err(|e| {
+        error!("request failed: {e}");
+        e.to_string()
+    })?;
 
-    trace!("received {model} response with length={}", res.len());
-    Ok(res)
+    if let Some(usage) = &res.usage {
+        trace!(
+            "received {model} response with actual input_tokens={}, and output tokens={}",
+            usage.input_tokens,
+            usage.output_tokens
+        );
+    }
+
+    Ok(res.output_text().expect("no response text"))
+}
+
+trait TokenCount {
+    fn estimate_token_count(&self) -> usize;
+}
+
+impl<T: AsRef<str>> TokenCount for T {
+    fn estimate_token_count(&self) -> usize {
+        (self.as_ref().len() / 3).max(1)
+    }
 }
