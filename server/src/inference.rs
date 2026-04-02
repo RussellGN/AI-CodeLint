@@ -1,8 +1,9 @@
-use async_openai::{
-    config::OpenAIConfig,
-    types::{chat::ReasoningEffort, responses::CreateResponseArgs},
-    Client,
+use async_openai::types::chat::{
+    ChatCompletionRequestMessage, ChatCompletionRequestSystemMessageArgs,
+    ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, ReasoningEffort,
+    ResponseFormat, Verbosity,
 };
+use async_openai::{config::OpenAIConfig, Client};
 use log::{debug, error, trace};
 
 use crate::{OPENROUTER_API_KEY, OPENROUTER_BASE_URL};
@@ -13,6 +14,7 @@ pub async fn invoke_model(
     preamble: &str,
     max_tokens: u32,
     reasoning_effort: ReasoningEffort,
+    verbosity: Verbosity,
 ) -> Result<String, String> {
     debug!("invoking model '{model}' | max tokens={max_tokens} | estimate request tokens: prompt={}, preamble={}",
         prompt.estimate_token_count(),
@@ -23,30 +25,52 @@ pub async fn invoke_model(
         .with_api_base(OPENROUTER_BASE_URL)
         .with_api_key(OPENROUTER_API_KEY);
     let client = Client::with_config(config);
-    let req = CreateResponseArgs::default()
-        .input(prompt)
-        .model(model)
-        .instructions(preamble)
-        .reasoning(reasoning_effort)
-        .max_output_tokens(max_tokens)
-        .build()
-        .map_err(|e| e.to_string())?;
 
-    debug!("sending request to {model}");
-    let res = client.responses().create(req).await.map_err(|e| {
-        error!("request failed: {e}");
+    let messages: Vec<ChatCompletionRequestMessage> = vec![
+        ChatCompletionRequestSystemMessageArgs::default()
+            .content(preamble)
+            .build()
+            .map_err(|e| format!("failed to build inference system message: {e}"))?
+            .into(),
+        ChatCompletionRequestUserMessageArgs::default()
+            .content(prompt)
+            .build()
+            .map_err(|e| format!("failed to build inference lint prompt: {e}"))?
+            .into(),
+    ];
+
+    let req = CreateChatCompletionRequestArgs::default()
+        .model(model)
+        .messages(messages)
+        .max_completion_tokens(max_tokens)
+        .n(1)
+        .reasoning_effort(reasoning_effort)
+        .verbosity(verbosity)
+        .response_format(ResponseFormat::JsonObject)
+        .build()
+        .map_err(|e| format!("failed to build inference request: {e}"))?;
+
+    debug!("sending inference request to {model}");
+    let res = client.chat().create(req).await.map_err(|e| {
+        error!("failed to send inference request: {e}");
         e.to_string()
     })?;
 
     if let Some(usage) = &res.usage {
         trace!(
-            "received {model} response with actual input_tokens={}, and output tokens={}",
-            usage.input_tokens,
-            usage.output_tokens
+            "received {model} response with actual input_tokens={}, and output_tokens={}",
+            usage.prompt_tokens,
+            usage.completion_tokens
         );
     }
 
-    Ok(res.output_text().expect("no response text"))
+    let res = res.choices.first().expect("inference results are empty!");
+    trace!("res:\n\n{res:#?}\n\n");
+
+    res.message
+        .content
+        .clone()
+        .ok_or(String::from("no response text"))
 }
 
 trait TokenCount {
