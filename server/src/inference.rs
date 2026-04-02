@@ -16,9 +16,9 @@ pub async fn invoke_model(
     verbosity: Verbosity,
     response_format: ResponseFormat,
 ) -> Result<String, String> {
-    debug!("invoking model '{model}' | max tokens={max_tokens} | estimate request tokens: prompt={}, preamble={}",
-        prompt.estimate_token_count(),
-        preamble.estimate_token_count()
+    debug!(
+        "invoking model '{model}' | max tokens={max_tokens} | estimate input tokens={}",
+        prompt.estimate_token_count() + preamble.estimate_token_count()
     );
 
     let config = OpenAIConfig::new()
@@ -67,7 +67,6 @@ pub async fn invoke_model(
         .choices
         .first()
         .ok_or_else(|| "inference results are empty!")?;
-    trace!("res:\n\n{choice:#?}\n\n");
 
     choice
         .message
