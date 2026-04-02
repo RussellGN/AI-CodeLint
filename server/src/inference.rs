@@ -1,7 +1,7 @@
 use async_openai::types::chat::{
     ChatCompletionRequestMessage, ChatCompletionRequestSystemMessageArgs,
-    ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, ReasoningEffort,
-    ResponseFormat, Verbosity,
+    ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, ResponseFormat,
+    Verbosity,
 };
 use async_openai::{config::OpenAIConfig, Client};
 use log::{debug, error, trace};
@@ -13,7 +13,6 @@ pub async fn invoke_model(
     model: &str,
     preamble: &str,
     max_tokens: u32,
-    reasoning_effort: ReasoningEffort,
     verbosity: Verbosity,
     response_format: ResponseFormat,
 ) -> Result<String, String> {
@@ -45,7 +44,6 @@ pub async fn invoke_model(
         .messages(messages)
         .max_completion_tokens(max_tokens)
         .n(1)
-        .reasoning_effort(reasoning_effort)
         .verbosity(verbosity)
         .response_format(response_format)
         .build()

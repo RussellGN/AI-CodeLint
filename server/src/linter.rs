@@ -1,4 +1,4 @@
-use async_openai::types::chat::{ReasoningEffort, ResponseFormat, Verbosity};
+use async_openai::types::chat::{ResponseFormat, Verbosity};
 use log::{debug, error, trace, warn};
 use serde::Deserialize;
 
@@ -27,7 +27,6 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
         model_id,
         &preamble,
         500,
-        ReasoningEffort::None,
         Verbosity::Medium,
         ResponseFormat::JsonObject,
     )
