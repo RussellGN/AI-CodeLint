@@ -15,6 +15,7 @@ pub async fn invoke_model(
     max_tokens: u32,
     reasoning_effort: ReasoningEffort,
     verbosity: Verbosity,
+    response_format: ResponseFormat,
 ) -> Result<String, String> {
     debug!("invoking model '{model}' | max tokens={max_tokens} | estimate request tokens: prompt={}, preamble={}",
         prompt.estimate_token_count(),
@@ -46,7 +47,7 @@ pub async fn invoke_model(
         .n(1)
         .reasoning_effort(reasoning_effort)
         .verbosity(verbosity)
-        .response_format(ResponseFormat::JsonObject)
+        .response_format(response_format)
         .build()
         .map_err(|e| format!("failed to build inference request: {e}"))?;
 
