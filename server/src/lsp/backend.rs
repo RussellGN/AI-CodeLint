@@ -170,23 +170,23 @@ impl Backend {
 
 impl From<LintResult> for Diagnostic {
     fn from(value: LintResult) -> Self {
-        // let range = Range::new(
-        //     Position::new(value.start_line, 0),
-        //     Position {
-        //         line: value.end_line + 1,
-        //         character: 0,
-        //     },
-        // );
-        let placeholder_range = Range::new(
-            Position::new(0, 0),
+        let range = Range::new(
+            Position::new(value.start_line, 0),
             Position {
-                line: 500,
+                line: value.end_line + 1,
                 character: 0,
             },
         );
+        // let placeholder_range = Range::new(
+        //     Position::new(0, 0),
+        //     Position {
+        //         line: 500,
+        //         character: 0,
+        //     },
+        // );
 
         Self {
-            range: placeholder_range,
+            range,
             message: value.overview,
             severity: Some(DiagnosticSeverity::INFORMATION),
             source: Some(String::from(CRATE_NAME)),
