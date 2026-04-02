@@ -125,7 +125,7 @@ impl Backend {
             .collect::<Vec<_>>()
             .len()
             .try_into()
-            .expect("could not narrow full text line count");
+            .unwrap_or_default();
         Range::new(Position::new(0, 0), Position::new(lines_count + 1, 0))
     }
 

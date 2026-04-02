@@ -63,10 +63,14 @@ pub async fn invoke_model(
         );
     }
 
-    let res = res.choices.first().expect("inference results are empty!");
-    trace!("res:\n\n{res:#?}\n\n");
+    let choice = res
+        .choices
+        .first()
+        .ok_or_else(|| "inference results are empty!")?;
+    trace!("res:\n\n{choice:#?}\n\n");
 
-    res.message
+    choice
+        .message
         .content
         .clone()
         .ok_or(String::from("no response text"))
