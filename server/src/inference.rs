@@ -1,6 +1,4 @@
-use async_openai::types::responses::{CreateResponseArgs, ReasoningArgs};
-use async_openai::Client;
-use async_openai::{config::OpenAIConfig, types::responses::Reasoning};
+use async_openai::{config::OpenAIConfig, types::responses::CreateResponseArgs, Client};
 use log::{debug, error, trace};
 
 use crate::{OPENROUTER_API_KEY, OPENROUTER_BASE_URL};
