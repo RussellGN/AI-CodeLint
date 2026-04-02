@@ -1,4 +1,8 @@
-use async_openai::{config::OpenAIConfig, types::responses::CreateResponseArgs, Client};
+use async_openai::{
+    config::OpenAIConfig,
+    types::{chat::ReasoningEffort, responses::CreateResponseArgs},
+    Client,
+};
 use log::{debug, error, trace};
 
 use crate::{OPENROUTER_API_KEY, OPENROUTER_BASE_URL};
@@ -8,6 +12,7 @@ pub async fn invoke_model(
     model: &str,
     preamble: &str,
     max_tokens: u32,
+    reasoning_effort: ReasoningEffort,
 ) -> Result<String, String> {
     debug!("invoking model '{model}' | max tokens={max_tokens} | estimate request tokens: prompt={}, preamble={}",
         prompt.estimate_token_count(),
@@ -17,19 +22,17 @@ pub async fn invoke_model(
     let config = OpenAIConfig::new()
         .with_api_base(OPENROUTER_BASE_URL)
         .with_api_key(OPENROUTER_API_KEY);
-
     let client = Client::with_config(config);
-
     let req = CreateResponseArgs::default()
         .input(prompt)
         .model(model)
         .instructions(preamble)
+        .reasoning(reasoning_effort)
         .max_output_tokens(max_tokens)
         .build()
         .map_err(|e| e.to_string())?;
 
     debug!("sending request to {model}");
-
     let res = client.responses().create(req).await.map_err(|e| {
         error!("request failed: {e}");
         e.to_string()
