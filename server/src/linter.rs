@@ -22,8 +22,8 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
     let preamble = format!("You are {CRATE_NAME}. Find only real runtime/behavior logic bugs that survive compilation within the provided code. Ignore style, syntax, type, or IDE/compiler-detectable issues. Return JSON only: [{{\"overview\":\"string\",\"start_line\":integer,\"end_line\":integer}}]. Use zero-based line numbers encompassing the entire affected code-block/statements. If none, return exactly []. Else return at most 3 items. Each overview: concrete bug + why behavior breaks; no markdown; no speculation. Do not inlcude whitespace in returned json.");
 
     // free models
-    // let model_id = "qwen/qwen3.6-plus-preview:free";
-    let model_id = "nvidia/nemotron-3-super-120b-a12b:free";
+    let model_id = "qwen/qwen3.6-plus-preview:free";
+    // let model_id = "nvidia/nemotron-3-super-120b-a12b:free";
     // let model_id = "nvidia/nemotron-3-nano-30b-a3b:free";
     // let model_id = "stepfun/step-3.5-flash:free";
     // let model_id = "arcee-ai/trinity-large-preview:free";
