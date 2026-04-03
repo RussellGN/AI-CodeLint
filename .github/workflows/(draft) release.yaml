@@ -1,0 +1,96 @@
+name: "Build & Publish Server Release (Auto-versioned)"
+
+on:
+   push:
+      tags:
+         - "v*"
+   workflow_dispatch:
+      inputs:
+         tag:
+            description: "Release Tag (e.g., v2.0.1)"
+            required: true
+            type: string
+
+jobs:
+   publish-server:
+      strategy:
+         fail-fast: false
+         matrix:
+            include:
+               - platform: "macos-latest"
+                 args: "--target aarch64-apple-darwin"
+               - platform: "macos-latest"
+                 args: "--target x86_64-apple-darwin"
+               - platform: "ubuntu-22.04"
+                 args: ""
+               - platform: "windows-latest"
+                 args: ""
+
+      runs-on: ${{ matrix.platform }}
+      defaults:
+         run:
+            shell: "bash"
+      steps:
+         - uses: actions/checkout@v4
+           with:
+              fetch-depth: 2
+
+         - name: Set version from tag if workflow_dispatch
+           if: github.event_name == 'workflow_dispatch'
+           id: set_version_from_tag
+           run: |
+              TAG_VERSION=$(echo "${{ github.event.inputs.tag }}" | sed 's/^v//')
+              if [ -z "$TAG_VERSION" ]; then
+                echo "::error::Release Tag input is required and cannot be empty."
+                exit 1
+              fi
+              echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
+
+         - name: Set version environment variable
+           run: |
+              if [ "${{ github.event_name }}" == "push" ]; then
+                echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+              elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+                echo "VERSION=${{ steps.set_version_from_tag.outputs.version }}" >> $GITHUB_ENV
+              fi
+
+         - name: Update Ubuntu dependencies
+           if: matrix.platform == 'ubuntu-22.04'
+           run: |
+              sudo apt-get update
+              sudo apt-get upgrade
+
+         - name: Install Rust
+           uses: dtolnay/rust-toolchain@stable
+           with:
+              targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+         - name: Cache Rust build
+           uses: swatinem/rust-cache@v2
+           with:
+              workspaces: "./server -> target"
+
+         - name: Extract release notes
+           id: changelog
+           run: |
+              # Extract everything between ## [2.0.1] and next ##
+              NOTES=$(awk '/## \['"${{ env.VERSION }}"'\]/{flag=1;next}/## \[/{flag=0}flag' CHANGELOG.md)
+              echo "notes<<EOF" >> $GITHUB_OUTPUT
+              echo "$NOTES" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+
+         - name: Build
+           run: |
+              cargo build --release
+
+         # - name: Publish release
+         #   uses:
+         #   env:
+         #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         #   with:
+         #      tagName: "v${{ env.VERSION }}"
+         #      releaseName: "AI CodeLint ${{ env.VERSION }}"
+         #      releaseBody: ${{ steps.changelog.outputs.notes }}
+         #      releaseDraft: true
+         #      prerelease: true
+         #      args: ${{ matrix.args }}
