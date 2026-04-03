@@ -5,7 +5,7 @@ let client: lsp.LanguageClient;
 
 export async function activate(_context: vscode.ExtensionContext) {
    const traceOutputChannel = vscode.window.createOutputChannel("AI CodeLint trace");
-   const command = process.env.SERVER_PATH || "ai-codelint";
+   const command = `${process.env.SERVER_PATH || "ai-codelint"} --mode server`;
 
    const run: lsp.Executable = {
       command,

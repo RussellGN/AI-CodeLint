@@ -1,8 +1,9 @@
+mod cli;
 mod inference;
 mod linter;
 mod lsp;
 
-use log::debug;
+use clap::Parser;
 use log::info;
 use log::LevelFilter;
 use tower_lsp::{LspService, Server};
@@ -21,12 +22,10 @@ async fn main() {
         .filter_module(CRATE_NAME, LevelFilter::Trace)
         .init();
 
-    let args = std::env::args().collect::<Vec<_>>();
-    let args = &args[1..];
-    if args.len() != 0 {
-        // run as cli
+    let args = cli::Args::parse();
+    if args.mode == cli::Mode::CLI {
         info!("running in CLI mode!");
-        debug!("args 2:\n{args:#?}");
+        args.process();
     } else {
         info!("starting {CRATE_NAME} LSP server");
 
