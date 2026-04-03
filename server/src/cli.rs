@@ -24,7 +24,6 @@ pub struct Args {
 
 impl Args {
     pub async fn process(&self) {
-        debug!("cli:\n{self:#?}");
         if self.mode != Mode::CLI {
             error!("cannot run 'process' on args when mode is not set to 'cli'");
             return;
