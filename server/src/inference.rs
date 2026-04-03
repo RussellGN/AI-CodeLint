@@ -51,7 +51,7 @@ pub async fn invoke_model(
 
     debug!("sending inference request to {model}");
     let res = client.chat().create(req).await.map_err(|e| {
-        error!("inference request failed:\n {e:#?}\n");
+        error!("inference request failed:\n\n {e:#?}\n");
         e.to_string()
     })?;
 
