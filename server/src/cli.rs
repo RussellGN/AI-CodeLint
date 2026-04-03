@@ -22,7 +22,7 @@ pub struct Args {
     pub path: Option<PathBuf>,
 
     #[arg(short, long)]
-    pub verbose: Option<bool>,
+    pub verbose: bool,
 }
 
 impl Args {
