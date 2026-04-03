@@ -34,8 +34,8 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
     let preamble = format!("You are {CRATE_NAME}. Find only real runtime/behavior logic bugs that survive compilation within the provided code. Ignore style, syntax, type, or IDE/compiler-detectable issues. Return JSON only: [{{\"overview\":\"string\",\"start_line\":integer,\"end_line\":integer}}]. Use zero-based line numbers encompassing the entire affected code-block/statements. If none, return exactly []. Else return at most 3 items. Each overview: concrete bug + why behavior breaks; no markdown; no speculation. Do not inlcude whitespace in returned json.");
 
     // free models
-    let model_id = "qwen/qwen3.6-plus-preview:free";
-    // let model_id = "nvidia/nemotron-3-super-120b-a12b:free";
+    // let model_id = "qwen/qwen3.6-plus-preview:free";
+    let model_id = "nvidia/nemotron-3-super-120b-a12b:free";
     // let model_id = "nvidia/nemotron-3-nano-30b-a3b:free";
     // let model_id = "stepfun/step-3.5-flash:free";
     // let model_id = "arcee-ai/trinity-large-preview:free";
@@ -59,11 +59,11 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
     .await?;
     trace!("raw lint response:\n\n{res}\n");
 
-    let errors_found = serde_json::from_str::<Vec<LintResult>>(&extract_json_array_only(&res)?)
-        .map_err(|e| {
-            error!("failed to parse lint JSON response: {e}");
-            e.to_string()
-        })?;
+    let json = try_to_extract_json(&res)?;
+    let errors_found = serde_json::from_str::<Vec<LintResult>>(&json).map_err(|e| {
+        error!("failed to parse lint JSON response: {e}");
+        e.to_string()
+    })?;
 
     debug!(
         "lint completed with {} diagnostic{}",
@@ -73,8 +73,18 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
     Ok(errors_found)
 }
 
-fn extract_json_array_only(text: &str) -> Result<&str, String> {
-    let open_bracket_index = text.find("[").ok_or("could not find json array")?;
-    let end_bracket_index = text.find("]").ok_or("could not find json array")?;
-    Ok(&text[open_bracket_index..end_bracket_index + 1])
+fn try_to_extract_json(text: &str) -> Result<String, &str> {
+    if let (Some(open_brac_index), Some(close_brac_index)) = (text.find("["), text.find("]")) {
+        Ok((&text[open_brac_index..close_brac_index + 1]).to_string())
+    } else {
+        if let (Some(open_curly_index), Some(close_curly_index)) = (text.find("{"), text.find("}"))
+        {
+            Ok(format!(
+                "[{}]",
+                &text[open_curly_index..close_curly_index + 1]
+            ))
+        } else {
+            Err("could not find valid json")
+        }
+    }
 }
