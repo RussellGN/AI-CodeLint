@@ -20,6 +20,9 @@ pub struct Args {
 
     #[arg(short, long)]
     pub path: Option<PathBuf>,
+
+    #[arg(short, long)]
+    pub verbose: Option<bool>,
 }
 
 impl Args {
@@ -30,6 +33,7 @@ impl Args {
         }
 
         let res = if let Some(path) = &self.path {
+            println!("running linter on file: {}", path.display());
             if let Ok(text) = fs::read_to_string(path).await {
                 match lint(&text).await {
                     Err(e) => Err(format!(

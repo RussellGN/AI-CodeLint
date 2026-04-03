@@ -8,6 +8,7 @@ use log::info;
 use log::LevelFilter;
 use tower_lsp::{LspService, Server};
 
+use crate::cli::Mode;
 use crate::lsp::Backend;
 
 const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
@@ -17,13 +18,16 @@ const CRATE_NAME: &str = "ai_codelint";
 
 #[tokio::main]
 async fn main() {
-    env_logger::Builder::new()
-        .filter_level(LevelFilter::Off)
-        .filter_module(CRATE_NAME, LevelFilter::Trace)
-        .init();
-
     let args = cli::Args::parse();
-    if args.mode == cli::Mode::CLI {
+
+    if args.mode == Mode::Server || args.verbose.is_some_and(|is_true| is_true) {
+        env_logger::Builder::new()
+            .filter_level(LevelFilter::Off)
+            .filter_module(CRATE_NAME, LevelFilter::Trace)
+            .init();
+    }
+
+    if args.mode == Mode::CLI {
         info!("running in CLI mode!");
         args.process().await;
     } else {
