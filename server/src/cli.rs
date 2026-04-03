@@ -44,7 +44,7 @@ impl Args {
                         )),
                         Ok(errors) => {
                             if errors.len() != 0 {
-                                println!("\n",);
+                                println!("");
                             }
                             errors.iter().for_each(|lint_err| println!("{lint_err}\n"));
                             let err_count = errors.len();
