@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::fmt::Display;
 
 use async_openai::types::chat::{ResponseFormat, Verbosity};
@@ -73,16 +74,16 @@ pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
     Ok(errors_found)
 }
 
-fn try_to_extract_json(text: &str) -> Result<String, &str> {
+fn try_to_extract_json(text: &str) -> Result<Cow<str>, &str> {
     if let (Some(open_brac_index), Some(close_brac_index)) = (text.find("["), text.find("]")) {
-        Ok((&text[open_brac_index..close_brac_index + 1]).to_string())
+        Ok(Cow::Borrowed(&text[open_brac_index..close_brac_index + 1]))
     } else {
         if let (Some(open_curly_index), Some(close_curly_index)) = (text.find("{"), text.find("}"))
         {
-            Ok(format!(
+            Ok(Cow::Owned(format!(
                 "[{}]",
                 &text[open_curly_index..close_curly_index + 1]
-            ))
+            )))
         } else {
             Err("could not find valid json")
         }
