@@ -18,6 +18,7 @@ const CRATE_NAME: &str = "ai_codelint";
 
 #[tokio::main]
 async fn main() {
+    let _ = clearscreen::clear();
     let args = cli::Args::parse();
 
     if args.mode == Mode::Server || args.verbose.is_some_and(|is_true| is_true) {
