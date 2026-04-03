@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{Parser, ValueEnum};
-use log::error;
+use colored::Colorize;
 use tokio::fs;
 
 use crate::linter::lint;
@@ -27,38 +27,47 @@ pub struct Args {
 
 impl Args {
     pub async fn process(&self) {
-        if self.mode != Mode::CLI {
-            error!("cannot run 'process' on args when mode is not set to 'cli'");
-            return;
-        }
-
-        let res = if let Some(path) = &self.path {
-            println!("running linter on file: {}", path.display());
-            if let Ok(text) = fs::read_to_string(path).await {
-                match lint(&text).await {
-                    Err(e) => Err(format!(
-                        "could not lint contents at {}. Error: {e}",
-                        path.display()
-                    )),
-                    Ok(errors) => {
-                        errors.iter().for_each(|lint_err| println!("{lint_err}\n"));
-                        Ok(format!("found {} bugs in {}", errors.len(), path.display()))
+        let res = if self.mode != Mode::CLI {
+            Err(("cannot run 'process' on args when mode is not set to 'cli'").into())
+        } else {
+            if let Some(path) = &self.path {
+                println!(
+                    "{} {}",
+                    "running linter on file:".cyan(),
+                    path.display().to_string().yellow().underline()
+                );
+                if let Ok(text) = fs::read_to_string(path).await {
+                    match lint(&text).await {
+                        Err(e) => Err(format!(
+                            "could not lint contents at {}. Error: {e}",
+                            path.display()
+                        )),
+                        Ok(errors) => {
+                            errors.iter().for_each(|lint_err| println!("{lint_err}\n"));
+                            let err_count = errors.len();
+                            Ok(format!(
+                                "found {} bug{} in {}",
+                                err_count,
+                                if err_count == 1 { "" } else { "s" },
+                                path.display()
+                            ))
+                        }
                     }
+                } else {
+                    Err(format!("could not read contents at {}", path.display()))
                 }
             } else {
-                Err(format!("could not read contents at {}", path.display()))
+                Err("'path' argument is required. Run with --help for usage instructions".into())
             }
-        } else {
-            Err("'path' argument is required. Run with --help for usage instructions".into())
         };
 
         match res {
             Ok(msg) => {
-                println!("{msg}");
+                println!("{}", msg.cyan());
                 std::process::exit(0)
             }
             Err(e) => {
-                println!("{e}");
+                println!("{}", e.red());
                 std::process::exit(1)
             }
         }

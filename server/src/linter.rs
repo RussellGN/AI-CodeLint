@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::fmt::Display;
 
 use async_openai::types::chat::{ResponseFormat, Verbosity};
+use colored::Colorize;
 use log::{debug, error, trace, warn};
 use serde::Deserialize;
 
@@ -19,8 +20,11 @@ impl Display for LintResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "line {} to line {}: {}",
-            self.start_line, self.end_line, self.overview
+            "Lines {}-{}{} {}",
+            self.start_line.to_string().bold(),
+            self.end_line.to_string().bold(),
+            " | ".cyan(),
+            self.overview.underline().red()
         )
     }
 }
