@@ -43,6 +43,9 @@ impl Args {
                             path.display()
                         )),
                         Ok(errors) => {
+                            if errors.len() != 0 {
+                                println!("\n",);
+                            }
                             errors.iter().for_each(|lint_err| println!("{lint_err}\n"));
                             let err_count = errors.len();
                             Ok(format!(
