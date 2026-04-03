@@ -2,6 +2,7 @@ mod inference;
 mod linter;
 mod lsp;
 
+use log::debug;
 use log::info;
 use log::LevelFilter;
 use tower_lsp::{LspService, Server};
@@ -19,14 +20,23 @@ async fn main() {
         .filter_level(LevelFilter::Off)
         .filter_module(CRATE_NAME, LevelFilter::Trace)
         .init();
-    info!("starting {CRATE_NAME} LSP server");
 
-    let stdin = tokio::io::stdin();
-    let stdout = tokio::io::stdout();
+    let args = std::env::args().collect::<Vec<_>>();
+    let args = &args[1..];
+    if args.len() != 0 {
+        // run as cli
+        info!("running in CLI mode!");
+        debug!("args 2:\n{args:#?}");
+    } else {
+        info!("starting {CRATE_NAME} LSP server");
 
-    let (service, socket) = LspService::build(|client| Backend::new(client)).finish();
-    info!("LSP service initialized, waiting for editor requests");
+        let stdin = tokio::io::stdin();
+        let stdout = tokio::io::stdout();
 
-    Server::new(stdin, stdout, socket).serve(service).await;
-    info!("LSP server stopped");
+        let (service, socket) = LspService::build(|client| Backend::new(client)).finish();
+        info!("LSP service initialized, waiting for editor requests");
+
+        Server::new(stdin, stdout, socket).serve(service).await;
+        info!("LSP server stopped");
+    }
 }
