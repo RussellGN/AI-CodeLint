@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{Parser, ValueEnum};
-use log::{debug, error};
+use log::error;
 use tokio::fs;
 
 use crate::linter::lint;
