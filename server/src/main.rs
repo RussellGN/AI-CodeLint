@@ -21,7 +21,7 @@ async fn main() {
     let _ = clearscreen::clear();
     let args = cli::Args::parse();
 
-    if args.mode == Mode::Server || args.verbose.is_some_and(|is_true| is_true) {
+    if args.mode == Mode::Server || args.verbose {
         env_logger::Builder::new()
             .filter_level(LevelFilter::Off)
             .filter_module(CRATE_NAME, LevelFilter::Trace)
