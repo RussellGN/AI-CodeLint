@@ -119,6 +119,7 @@ impl Backend {
         }
     }
 
+    #[allow(unused)]
     fn full_text_range(text: &str) -> Range {
         let lines_count: u32 = text
             .lines()
@@ -141,13 +142,13 @@ impl Backend {
             Err(e) => error!("lint failed for {uri}: {e}"),
             Ok(errs) => {
                 debug!("lint returned {} diagnostics for {uri}", errs.len());
-                let full_page_range = Self::full_text_range(&text_to_compile);
+                // let full_page_range = Self::full_text_range(&text_to_compile);
 
                 let diagnostics: Vec<Diagnostic> = errs
                     .into_iter()
                     .map(|e| {
-                        let mut d: Diagnostic = e.into();
-                        d.range = full_page_range; // TODO: remove when confident of AI range output
+                        let d: Diagnostic = e.into();
+                        // d.range = full_page_range; // TODO: remove when confident of AI range output
                         d
                     })
                     .collect();
