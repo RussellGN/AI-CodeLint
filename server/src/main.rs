@@ -25,7 +25,7 @@ async fn main() {
     let args = cli::Args::parse();
     if args.mode == cli::Mode::CLI {
         info!("running in CLI mode!");
-        args.process();
+        args.process().await;
     } else {
         info!("starting {CRATE_NAME} LSP server");
 

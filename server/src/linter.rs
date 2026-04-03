@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use async_openai::types::chat::{ResponseFormat, Verbosity};
 use log::{debug, error, trace, warn};
 use serde::Deserialize;
@@ -10,6 +12,16 @@ pub struct LintResult {
     pub overview: String,
     pub start_line: u32,
     pub end_line: u32,
+}
+
+impl Display for LintResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "line {} to line {}: {}",
+            self.start_line, self.end_line, self.overview
+        )
+    }
 }
 
 pub async fn lint(text: &str) -> Result<Vec<LintResult>, String> {
