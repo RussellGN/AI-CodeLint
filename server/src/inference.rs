@@ -4,6 +4,7 @@ use async_openai::types::chat::{
     Verbosity,
 };
 use async_openai::{config::OpenAIConfig, Client};
+use colored::Colorize;
 use log::{debug, error, trace};
 
 use crate::{OPENROUTER_API_KEY, OPENROUTER_BASE_URL};
@@ -17,7 +18,7 @@ pub async fn invoke_model(
     response_format: ResponseFormat,
 ) -> Result<String, String> {
     debug!(
-        "invoking model '{model}' | max tokens={max_tokens} | estimate input tokens={}",
+        "invoke model='{model}' | estimated input token count={} | max output tokens={max_tokens}",
         prompt.estimate_token_count() + preamble.estimate_token_count()
     );
 
@@ -51,7 +52,7 @@ pub async fn invoke_model(
 
     debug!("sending inference request to {model}");
     let res = client.chat().create(req).await.map_err(|e| {
-        error!("inference request failed:\n\n {e:#?}\n");
+        error!("inference request failed:\n\n {e}\n");
         e.to_string()
     })?;
 
