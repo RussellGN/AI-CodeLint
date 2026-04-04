@@ -31,33 +31,45 @@ impl Args {
             Err(("cannot run 'process' on args when mode is not set to 'cli'").into())
         } else {
             if let Some(path) = &self.path {
-                println!(
-                    "{} {}",
-                    "running linter on file:".cyan(),
-                    path.display().to_string().yellow().underline()
-                );
-                if let Ok(text) = fs::read_to_string(path).await {
-                    match lint(&text).await {
-                        Err(e) => Err(format!(
-                            "could not lint contents at {}. Error: {e}",
-                            path.display()
-                        )),
-                        Ok(errors) => {
-                            if errors.len() != 0 {
-                                println!("");
+                match fs::try_exists(path).await {
+                    Ok(exists) if !exists => Err(format!(
+                        "no file found at path: {}",
+                        path.display().to_string().yellow().underline()
+                    )),
+                    Err(e) => Err(format!(
+                        "could not traverse path: {}, error: {e}",
+                        path.display().to_string().yellow().underline()
+                    )),
+                    _ => {
+                        println!(
+                            "{} {}",
+                            "running linter on file:".cyan(),
+                            path.display().to_string().yellow().underline()
+                        );
+                        if let Ok(text) = fs::read_to_string(path).await {
+                            match lint(&text).await {
+                                Err(e) => Err(format!(
+                                    "could not lint contents at {}. Error: {e}",
+                                    path.display()
+                                )),
+                                Ok(errors) => {
+                                    if errors.len() != 0 {
+                                        println!("");
+                                    }
+                                    errors.iter().for_each(|lint_err| println!("{lint_err}\n"));
+                                    let err_count = errors.len();
+                                    Ok(format!(
+                                        "found {} bug{} in {}",
+                                        err_count,
+                                        if err_count == 1 { "" } else { "s" },
+                                        path.display()
+                                    ))
+                                }
                             }
-                            errors.iter().for_each(|lint_err| println!("{lint_err}\n"));
-                            let err_count = errors.len();
-                            Ok(format!(
-                                "found {} bug{} in {}",
-                                err_count,
-                                if err_count == 1 { "" } else { "s" },
-                                path.display()
-                            ))
+                        } else {
+                            Err(format!("could not read contents at {}", path.display()))
                         }
                     }
-                } else {
-                    Err(format!("could not read contents at {}", path.display()))
                 }
             } else {
                 Err("'path' argument is required. Run with --help for usage instructions".into())
