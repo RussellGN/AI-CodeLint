@@ -4,8 +4,7 @@ mod linter;
 mod lsp;
 
 use clap::Parser;
-use log::info;
-use log::LevelFilter;
+use log::{info, LevelFilter};
 use tower_lsp::{LspService, Server};
 
 use crate::cli::Mode;
