@@ -28,7 +28,11 @@ impl Display for LintResult {
     }
 }
 
-pub async fn lint(text: &str, model_preference: Option<&str>) -> Result<Vec<LintResult>, String> {
+pub async fn lint(
+    text: &str,
+    model_pref: Option<&str>,
+    max_tokens_pref: Option<u32>,
+) -> Result<Vec<LintResult>, String> {
     debug!("running lint on document length={}", text.len());
     if text.trim().is_empty() {
         warn!("received empty document text for linting, returning...");
@@ -39,7 +43,7 @@ pub async fn lint(text: &str, model_preference: Option<&str>) -> Result<Vec<Lint
 
     // free models
     // let model_id = model.unwrap_or("qwen/qwen3.6-plus-preview:free");
-    let model_id = model_preference.unwrap_or("nvidia/nemotron-3-super-120b-a12b:free");
+    let model_id = model_pref.unwrap_or("nvidia/nemotron-3-super-120b-a12b:free");
     // let model_id = model.unwrap_or("nvidia/nemotron-3-nano-30b-a3b:free");
     // let model_id = model.unwrap_or("stepfun/step-3.5-flash:free");
     // let model_id = model.unwrap_or("arcee-ai/trinity-large-preview:free");
@@ -56,7 +60,7 @@ pub async fn lint(text: &str, model_preference: Option<&str>) -> Result<Vec<Lint
         text,
         model_id,
         &preamble,
-        500,
+        max_tokens_pref.unwrap_or(500),
         Verbosity::Medium,
         ResponseFormat::JsonObject,
     )

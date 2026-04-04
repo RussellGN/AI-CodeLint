@@ -24,8 +24,11 @@ pub struct Args {
     #[arg(short, long)]
     pub verbose: bool,
 
-    #[arg(short, long)]
+    #[arg(long)]
     pub model: Option<String>,
+
+    #[arg(long)]
+    pub max_tokens: Option<u32>,
 }
 
 impl Args {
@@ -50,7 +53,7 @@ impl Args {
                             path.display().to_string().yellow().underline()
                         );
                         if let Ok(text) = fs::read_to_string(path).await {
-                            match lint(&text, self.model.as_deref()).await {
+                            match lint(&text, self.model.as_deref(), self.max_tokens).await {
                                 Err(e) => Err(format!(
                                     "could not lint contents at {}. Error: {e}",
                                     path.display()
