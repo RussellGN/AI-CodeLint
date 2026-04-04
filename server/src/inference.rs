@@ -4,7 +4,6 @@ use async_openai::types::chat::{
     Verbosity,
 };
 use async_openai::{config::OpenAIConfig, Client};
-use colored::Colorize;
 use log::{debug, error, trace};
 
 use crate::{OPENROUTER_API_KEY, OPENROUTER_BASE_URL};
