@@ -138,7 +138,7 @@ impl Backend {
             return;
         };
 
-        match lint(&text_to_compile).await {
+        match lint(&text_to_compile, None).await {
             Err(e) => error!("lint failed for {uri}: {e}"),
             Ok(errs) => {
                 debug!("lint returned {} diagnostics for {uri}", errs.len());

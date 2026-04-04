@@ -23,6 +23,9 @@ pub struct Args {
 
     #[arg(short, long)]
     pub verbose: bool,
+
+    #[arg(short, long)]
+    pub model: Option<String>,
 }
 
 impl Args {
@@ -47,7 +50,7 @@ impl Args {
                             path.display().to_string().yellow().underline()
                         );
                         if let Ok(text) = fs::read_to_string(path).await {
-                            match lint(&text).await {
+                            match lint(&text, self.model.as_deref()).await {
                                 Err(e) => Err(format!(
                                     "could not lint contents at {}. Error: {e}",
                                     path.display()
