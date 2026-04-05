@@ -1,7 +1,6 @@
 - create CI for rust binary
 - create unified release CI
 - publish vscode extension, with binary install script built in
-- decompose Args::process
 - implement api token configs (in-editor config, and global-cli config)
 - expand configuration to: model selection, verbosity, max tokens, etc
 - clear diagnostics on file change
