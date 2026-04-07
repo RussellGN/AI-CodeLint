@@ -1,6 +1,6 @@
-- create CI for rust binary
-- create unified release CI
-- publish vscode extension, with binary install script built in
-- implement api token configs (in-editor config, and global-cli config)
-- expand configuration to: model selection, verbosity, max tokens, etc
 - clear diagnostics on file change
+- create server killswitch, with 'next steps' info
+- create CI for rust binary
+- implement config (per-project config, and global config)
+- publish vscode extension, with binary install script built in
+- create unified release CI
