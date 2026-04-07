@@ -1,5 +1,6 @@
-use ai_codelint::CRATE_NAME;
+use ai_codelint::{check_if_outdated, CRATE_NAME};
 use clap::Parser;
+use colored::Colorize;
 use log::{info, LevelFilter};
 use tower_lsp::{LspService, Server};
 
@@ -8,6 +9,11 @@ use ai_codelint::lsp::Backend;
 
 #[tokio::main]
 async fn main() {
+    if let Err(e) = check_if_outdated().await {
+        println!("{}: {e}", "version check failed".bold().red());
+        std::process::exit(1)
+    }
+
     let args = Args::parse();
 
     if args.mode == Mode::Server || args.verbose {
