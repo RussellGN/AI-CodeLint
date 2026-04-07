@@ -17,7 +17,6 @@ const CRATE_NAME: &str = "ai_codelint";
 
 #[tokio::main]
 async fn main() {
-    let _ = clearscreen::clear();
     let args = cli::Args::parse();
 
     if args.mode == Mode::Server || args.verbose {
@@ -28,6 +27,7 @@ async fn main() {
     }
 
     if args.mode == Mode::CLI {
+        let _ = clearscreen::clear();
         info!("running in CLI mode!");
         args.process().await;
     } else {
