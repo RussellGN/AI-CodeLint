@@ -57,8 +57,11 @@ impl LanguageServer for Backend {
         debug!("file changed: {}", uri);
 
         if let Some(changes) = params.content_changes.first() {
+            trace!("updating document cache");
             self.replace_doc_text(uri.as_str(), changes.text.clone())
                 .await;
+            trace!("clearing diagnostics");
+            self.client.publish_diagnostics(uri, vec![], None).await;
         } else {
             warn!("did_change fired with no content changes for {}", uri);
         };
