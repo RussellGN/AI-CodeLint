@@ -31,7 +31,7 @@ pub async fn check_if_outdated() -> Result<(), String> {
     } = serde_json::from_str(&res).map_err(|e| e.to_string())?;
 
     let recommended_version = Version::parse(&recommended_version).map_err(|e| e.to_string())?;
-    let current_version = Version::parse(env!("CARGO_PKG_NAME")).map_err(|e| e.to_string())?;
+    let current_version = Version::parse(env!("CARGO_PKG_VERSION")).map_err(|e| e.to_string())?;
 
     if current_version < recommended_version {
         Err(format!("Current version '{current_version}' of {CRATE_NAME} is out of date. Please download and use the recommended version '{recommended_version}' or newer."))
