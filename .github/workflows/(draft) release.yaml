@@ -11,86 +11,157 @@ on:
             required: true
             type: string
 
+permissions:
+   contents: write
+
 jobs:
-   publish-server:
+   prepare-release:
+      runs-on: ubuntu-latest
+      outputs:
+         version: ${{ steps.meta.outputs.version }}
+         tag: ${{ steps.meta.outputs.tag }}
+         ref: ${{ steps.meta.outputs.ref }}
+         notes: ${{ steps.changelog.outputs.notes }}
+      steps:
+         - name: Resolve release metadata
+           id: meta
+           shell: bash
+           run: |
+              set -euo pipefail
+
+              if [[ "${{ github.event_name }}" == "push" ]]; then
+                TAG_NAME="${GITHUB_REF_NAME}"
+              else
+                TAG_NAME="${{ github.event.inputs.tag }}"
+              fi
+
+              if [[ -z "$TAG_NAME" ]]; then
+                echo "::error::Release tag is required."
+                exit 1
+              fi
+
+              VERSION="${TAG_NAME#v}"
+
+              echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
+              echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+              echo "ref=$TAG_NAME" >> "$GITHUB_OUTPUT"
+
+         - uses: actions/checkout@v4
+           with:
+              ref: ${{ steps.meta.outputs.ref }}
+              fetch-depth: 0
+
+         - name: Extract release notes
+           id: changelog
+           shell: bash
+           run: |
+              set -euo pipefail
+
+              VERSION="${{ steps.meta.outputs.version }}"
+              NOTES="$(awk '/^## \['"${VERSION}"'\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md)"
+
+              if [[ -z "$NOTES" ]]; then
+                echo "::error::No changelog entry found for version ${VERSION}."
+                exit 1
+              fi
+
+              {
+                echo "notes<<EOF"
+                printf '%s\n' "$NOTES"
+                echo "EOF"
+              } >> "$GITHUB_OUTPUT"
+
+   build-server:
+      needs: prepare-release
       strategy:
          fail-fast: false
          matrix:
             include:
-               - platform: "macos-latest"
-                 args: "--target aarch64-apple-darwin"
-               - platform: "macos-latest"
-                 args: "--target x86_64-apple-darwin"
-               - platform: "ubuntu-22.04"
-                 args: ""
-               - platform: "windows-latest"
-                 args: ""
+               - platform: macos-latest
+                 target: aarch64-apple-darwin
+                 artifact_suffix: ""
+               - platform: macos-latest
+                 target: x86_64-apple-darwin
+                 artifact_suffix: ""
+               - platform: ubuntu-22.04
+                 target: x86_64-unknown-linux-gnu
+                 artifact_suffix: ""
+               - platform: windows-latest
+                 target: x86_64-pc-windows-msvc
+                 artifact_suffix: ".exe"
 
       runs-on: ${{ matrix.platform }}
       defaults:
          run:
-            shell: "bash"
+            shell: bash
+            working-directory: server
+
       steps:
          - uses: actions/checkout@v4
            with:
-              fetch-depth: 2
-
-         - name: Set version from tag if workflow_dispatch
-           if: github.event_name == 'workflow_dispatch'
-           id: set_version_from_tag
-           run: |
-              TAG_VERSION=$(echo "${{ github.event.inputs.tag }}" | sed 's/^v//')
-              if [ -z "$TAG_VERSION" ]; then
-                echo "::error::Release Tag input is required and cannot be empty."
-                exit 1
-              fi
-              echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
-
-         - name: Set version environment variable
-           run: |
-              if [ "${{ github.event_name }}" == "push" ]; then
-                echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
-              elif [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-                echo "VERSION=${{ steps.set_version_from_tag.outputs.version }}" >> $GITHUB_ENV
-              fi
-
-         - name: Update Ubuntu dependencies
-           if: matrix.platform == 'ubuntu-22.04'
-           run: |
-              sudo apt-get update
-              sudo apt-get upgrade
+              ref: ${{ needs.prepare-release.outputs.ref }}
+              fetch-depth: 0
 
          - name: Install Rust
            uses: dtolnay/rust-toolchain@stable
            with:
-              targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+              targets: ${{ matrix.target }}
 
          - name: Cache Rust build
            uses: swatinem/rust-cache@v2
            with:
               workspaces: "./server -> target"
 
-         - name: Extract release notes
-           id: changelog
-           run: |
-              # Extract everything between ## [2.0.1] and next ##
-              NOTES=$(awk '/## \['"${{ env.VERSION }}"'\]/{flag=1;next}/## \[/{flag=0}flag' CHANGELOG.md)
-              echo "notes<<EOF" >> $GITHUB_OUTPUT
-              echo "$NOTES" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
+         - name: Build release binary
+           run: cargo build --locked --release --target "${{ matrix.target }}"
 
-         - name: Build
+         - name: Stage release artifact
            run: |
-              cargo build --release
+              set -euo pipefail
 
-         # - name: Publish release
-         #   uses:
-         #   env:
-         #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-         #   with:
-         #      tagName: "v${{ env.VERSION }}"
-         #      releaseName: "AI CodeLint ${{ env.VERSION }}"
-         #      releaseBody: ${{ steps.changelog.outputs.notes }}
-         #      releaseDraft: true
-         #      prerelease: true
-         #      args: ${{ matrix.args }}
+              VERSION="${{ needs.prepare-release.outputs.version }}"
+              TARGET="${{ matrix.target }}"
+              EXTENSION="${{ matrix.artifact_suffix }}"
+              OUTPUT_DIR="../release-artifacts/${TARGET}"
+
+              mkdir -p "$OUTPUT_DIR"
+              cp "target/${TARGET}/release/ai-codelint${EXTENSION}" "$OUTPUT_DIR/ai-codelint-${VERSION}-${TARGET}${EXTENSION}"
+
+         - name: Upload artifact
+           uses: actions/upload-artifact@v4
+           with:
+              name: ai-codelint-${{ matrix.target }}
+              path: release-artifacts/${{ matrix.target }}/ai-codelint-${{ needs.prepare-release.outputs.version }}-${{ matrix.target }}${{ matrix.artifact_suffix }}
+              if-no-files-found: error
+
+   publish-release:
+      needs:
+         - prepare-release
+         - build-server
+      runs-on: ubuntu-latest
+      steps:
+         - name: Download release artifacts
+           uses: actions/download-artifact@v4
+           with:
+              path: release-artifacts
+              merge-multiple: true
+
+         - name: Write release notes
+           shell: bash
+           run: |
+              set -euo pipefail
+
+              printf '%s\n' "${{ needs.prepare-release.outputs.notes }}" > release-body.md
+
+         - name: Publish GitHub release
+           uses: softprops/action-gh-release@v2
+           with:
+              tag_name: ${{ needs.prepare-release.outputs.tag }}
+              name: AI CodeLint ${{ needs.prepare-release.outputs.version }}
+              body_path: release-body.md
+              prerelease: true
+              draft: false
+              files: release-artifacts/*
+              fail_on_unmatched_files: true
+           env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
