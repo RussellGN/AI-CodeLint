@@ -160,7 +160,7 @@ jobs:
               name: AI CodeLint ${{ needs.prepare-release.outputs.version }}
               body_path: release-body.md
               prerelease: true
-              draft: false
+              draft: true
               files: release-artifacts/*
               fail_on_unmatched_files: true
            env:
