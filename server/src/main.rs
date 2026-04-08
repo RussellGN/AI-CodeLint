@@ -22,7 +22,10 @@ async fn main() {
     if args.mode == Mode::Server || args.verbose {
         env_logger::Builder::new()
             .filter_level(LevelFilter::Off)
-            .filter_module(CRATE_NAME, LevelFilter::Trace)
+            .filter_module(
+                &CRATE_NAME.to_string().replace("-", "_"),
+                LevelFilter::Trace,
+            )
             .init();
     }
 
