@@ -1,13 +1,49 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>website</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+   <head>
+      <meta charset="UTF-8" />
+      <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+      <title>AI CodeLint</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css" />
+
+      <meta name="description" content="AI CodeLint makes use of frontier LLMs to identify bugs in code, either realtime in-editor, or as a standalone analyzer." />
+      <meta name="keywords" content="AI CodeLint, code linting, AI code review, static analysis, code quality, developer tools" />
+      <meta name="author" content="Russell Gundani" />
+      <meta name="robots" content="index, follow" />
+
+      <meta property="og:title" content="AI CodeLint | Boost Code Quality as You Type" />
+      <meta property="og:description" content="Make use of frontier LLMs to identify bugs in code, either realtime in-editor, or as standalone analysis." />
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="AI CodeLint" />
+
+      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:title" content="AI CodeLint | Boost Code Quality as You Type" />
+      <meta name="twitter:description" content="Make use of frontier LLMs to identify bugs in code, either realtime in-editor, or as standalone analysis." />
+
+      <script defer type="module" src="/src/main.ts"></script>
+   </head>
+
+   <body class="bg-black text-white text-center pt-30">
+      <div class="container mx-auto px-5">
+         <h1 class="text-2xl font-extrabold font-mono">AI CodeLint</h1>
+
+         <p class="mb-4 font-thin">Boost code quality as you type</p>
+
+         <img src="/lint-error.png" alt="code lint error" width="400" class="w-110 mx-auto rounded-lg mb-10" />
+
+         <a
+            class="text-cyan-400 underline-offset-4 hover:text-cyan-200 transition-all underline"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://github.com/RussellGN/AI-CodeLint/releases/latest"
+         >
+            Download pre-release ->
+         </a>
+
+         <a class="text-cyan-400 block text-3xl mt-5 hover:text-cyan-200 transition-all" target="_blank" rel="noopener noreferrer" href="https://github.com/RussellGN/AI-CodeLint">
+            <i class="hgi hgi-stroke hgi-github"></i>
+         </a>
+      </div>
+   </body>
 </html>
