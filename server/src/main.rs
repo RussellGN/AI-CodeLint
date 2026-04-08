@@ -1,4 +1,4 @@
-use ai_codelint::{check_if_outdated, CRATE_NAME};
+use ai_codelint::{check_if_outdated, get_api_key, CRATE_NAME};
 use clap::Parser;
 use colored::Colorize;
 use log::{info, LevelFilter};
@@ -9,6 +9,9 @@ use ai_codelint::lsp::Backend;
 
 #[tokio::main]
 async fn main() {
+    dotenvy::dotenv().ok();
+    let _ = get_api_key();
+
     if let Err(e) = check_if_outdated().await {
         println!("{}: {e}", "version check failed".bold().red());
         std::process::exit(1)

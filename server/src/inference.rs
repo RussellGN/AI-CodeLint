@@ -6,7 +6,7 @@ use async_openai::types::chat::{
 use async_openai::{config::OpenAIConfig, Client};
 use log::{debug, error, trace};
 
-use crate::{OPENROUTER_API_KEY, OPENROUTER_BASE_URL};
+use crate::{get_api_key, OPENROUTER_BASE_URL};
 
 pub async fn invoke_model(
     prompt: &str,
@@ -23,7 +23,7 @@ pub async fn invoke_model(
 
     let config = OpenAIConfig::new()
         .with_api_base(OPENROUTER_BASE_URL)
-        .with_api_key(OPENROUTER_API_KEY);
+        .with_api_key(get_api_key());
     let client = Client::with_config(config);
 
     let messages: Vec<ChatCompletionRequestMessage> = vec![
