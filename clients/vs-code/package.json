@@ -1,6 +1,6 @@
 {
    "name": "ai-codelint",
-   "version": "0.0.2",
+   "version": "0.0.3",
    "description": "Boost code quality as you type",
    "categories": [
       "AI",
