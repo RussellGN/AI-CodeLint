@@ -1,11 +1,11 @@
-use colored::Colorize;
-use semver::Version;
-use serde::Deserialize;
-
 pub mod cli;
 pub mod inference;
 pub mod linter;
 pub mod lsp;
+
+use colored::Colorize;
+use semver::Version;
+use serde::Deserialize;
 
 pub const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
 pub const DOCS_CACHE_SIZE: usize = 20;
