@@ -1,4 +1,5 @@
 pub mod cli;
+pub mod config;
 pub mod inference;
 pub mod linter;
 pub mod lsp;

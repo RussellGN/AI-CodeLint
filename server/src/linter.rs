@@ -6,6 +6,7 @@ use colored::Colorize;
 use log::{debug, error, trace, warn};
 use serde::Deserialize;
 
+use crate::config::Config;
 use crate::inference::invoke_model;
 use crate::CRATE_NAME;
 
@@ -30,8 +31,8 @@ impl Display for LintResult {
 
 pub async fn lint(
     text: &str,
-    model_pref: Option<&str>,
-    max_tokens_pref: Option<u32>,
+    model_overide: Option<&str>,
+    max_tokens_overide: Option<u32>,
 ) -> Result<Vec<LintResult>, String> {
     debug!("running lint on document length={}", text.len());
     if text.trim().is_empty() {
@@ -41,26 +42,13 @@ pub async fn lint(
 
     let preamble = format!("You are {CRATE_NAME}. Find only real runtime/behavior logic bugs that survive compilation within the provided code. Ignore style, syntax, type, or IDE/compiler-detectable issues. Return JSON only: [{{\"overview\":\"string\",\"start_line\":integer,\"end_line\":integer}}]. Use zero-based line numbers encompassing the entire affected code-block/statements. If none, return exactly []. Else return at most 3 items. Each overview: concrete bug + why behavior breaks; no markdown; no speculation. Do not inlcude whitespace in returned json.");
 
-    // free models
-    // let model_id = model.unwrap_or("qwen/qwen3.6-plus-preview:free");
-    let model_id = model_pref.unwrap_or("nvidia/nemotron-3-super-120b-a12b:free");
-    // let model_id = model.unwrap_or("nvidia/nemotron-3-nano-30b-a3b:free");
-    // let model_id = model.unwrap_or("stepfun/step-3.5-flash:free");
-    // let model_id = model.unwrap_or("arcee-ai/trinity-large-preview:free");
-
-    // paid models - as of april 2
-    // let model_id = model.unwrap_or("xiaomi/mimo-v2-pro"); // #1 programming
-    // let model_id = model.unwrap_or("minimax/minimax-m2.7"); // #2 programming
-    // let model_id = model.unwrap_or("anthropic/claude-opus-4.6"); // #5 programming
-    // let model_id = model.unwrap_or("anthropic/claude-sonnet-4.6"); // #11 programming
-    // let model_id = model.unwrap_or("google/gemini-3-flash-preview"); // #12 programming
-    // let model_id = model.unwrap_or("deepseek/deepseek-v3.2"); // #17 programming
+    let config = Config::build().await?;
 
     let res = invoke_model(
         text,
-        model_id,
+        model_overide.unwrap_or(config.model()),
         &preamble,
-        max_tokens_pref.unwrap_or(500),
+        max_tokens_overide.unwrap_or(config.max_tokens()),
         Verbosity::Medium,
         ResponseFormat::JsonObject,
     )

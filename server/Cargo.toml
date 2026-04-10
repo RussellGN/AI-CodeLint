@@ -18,5 +18,6 @@ clearscreen = "4.0.6"
 reqwest = "0.13.2"
 semver = "1.0.28"
 dotenvy = "0.15.7"
+directories = "6.0.0"
 
 
