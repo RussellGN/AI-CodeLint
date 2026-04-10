@@ -1,3 +1,3 @@
-- implement config (per-project config, and global config)
+- implement config walkthrough
 - publish vscode extension, with binary install script built in
 - create unified release CI
