@@ -1,3 +1,4 @@
+use ai_codelint::config::Config;
 use ai_codelint::{check_if_outdated, CRATE_NAME};
 use clap::Parser;
 use colored::Colorize;
@@ -17,6 +18,11 @@ async fn main() {
     }
 
     let args = Args::parse();
+
+    if args.configure {
+        Config::walkthrough();
+        return;
+    }
 
     if args.mode == Mode::Server || args.verbose {
         env_logger::Builder::new()

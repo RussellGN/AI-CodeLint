@@ -55,6 +55,13 @@ impl Config {
         }
     }
 
+    pub fn walkthrough() {
+        // ask for api key
+        // ask for model preference
+        // ask for max output tokens preference
+        todo!()
+    }
+
     pub fn model(&self) -> &str {
         &self.model
     }
