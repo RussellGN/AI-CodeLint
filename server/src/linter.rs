@@ -21,10 +21,10 @@ impl Display for LintResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Lines {}-{} {}",
+            "Lines {}-{}: {}",
             self.start_line.to_string().bold(),
             self.end_line.to_string().bold(),
-            self.overview.underline().red()
+            self.overview.red()
         )
     }
 }
