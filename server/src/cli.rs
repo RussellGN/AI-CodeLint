@@ -16,7 +16,7 @@ pub enum Mode {
 #[command(version, about, long_about = "Boost code quality as you type")]
 pub struct Args {
     #[arg(short, long)]
-    pub mode: Mode,
+    pub mode: Option<Mode>,
 
     #[arg(short, long)]
     pub path: Option<PathBuf>,
@@ -36,7 +36,7 @@ pub struct Args {
 
 impl Args {
     pub async fn process(&self) {
-        let res = if self.mode != Mode::CLI {
+        let res = if self.mode != Some(Mode::CLI) {
             Err(("cannot run 'process' on args when mode is not set to 'cli'").into())
         } else {
             if let Some(path) = &self.path {

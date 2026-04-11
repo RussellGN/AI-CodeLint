@@ -24,7 +24,7 @@ async fn main() {
         return;
     }
 
-    if args.mode == Mode::Server || args.verbose {
+    if args.mode == Some(Mode::Server) || args.verbose {
         env_logger::Builder::new()
             .filter_level(LevelFilter::Off)
             .filter_module(
@@ -34,11 +34,11 @@ async fn main() {
             .init();
     }
 
-    if args.mode == Mode::CLI {
+    if args.mode == Some(Mode::CLI) {
         let _ = clearscreen::clear();
         info!("running in CLI mode!");
         args.process().await;
-    } else {
+    } else if args.mode == Some(Mode::Server) {
         info!("starting {CRATE_NAME} LSP server");
 
         let stdin = tokio::io::stdin();
@@ -49,5 +49,15 @@ async fn main() {
 
         Server::new(stdin, stdout, socket).serve(service).await;
         info!("LSP server stopped");
+    }
+
+    if args.mode.is_none() && !args.configure {
+        println!(
+            "{}",
+            "no args provided, run with --help for documentation"
+                .bold()
+                .red()
+        );
+        std::process::exit(1)
     }
 }
