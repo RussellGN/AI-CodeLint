@@ -95,6 +95,7 @@ impl Config {
             "Enter max output token usage for each lint request (default is {DEFAULT_MAX_TOKEN_USAGE})"
         ))?;
         let input = input
+            .trim()
             .parse()
             .map_err(|e| format!("error parsing max token usage input: {e}"))?;
         self.set_max_tokens(input).await?;
