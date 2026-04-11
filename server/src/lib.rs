@@ -4,7 +4,7 @@ pub mod inference;
 pub mod linter;
 pub mod lsp;
 
-use colored::Colorize;
+use colored::{ColoredString, Colorize};
 use semver::Version;
 use serde::Deserialize;
 
@@ -38,6 +38,16 @@ pub async fn check_if_outdated() -> Result<(), String> {
         Err(format!("Current version '{current_version}' of {CRATE_NAME} is out of date. Please download and use the recommended version '{recommended_version}' or newer."))
     } else {
         Ok(())
+    }
+}
+
+pub trait PathDisplay {
+    fn path_display(self) -> ColoredString;
+}
+
+impl<T: Colorize> PathDisplay for T {
+    fn path_display(self) -> ColoredString {
+        self.underline().yellow()
     }
 }
 
