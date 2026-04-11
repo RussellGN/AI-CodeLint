@@ -1,4 +1,4 @@
-use std::{path::PathBuf, thread};
+use std::{io::Write, path::PathBuf, thread};
 
 use colored::Colorize;
 use directories::ProjectDirs;
@@ -65,6 +65,9 @@ impl Config {
     fn prompt_user_and(prompt: String) -> Result<String, String> {
         let thread_handle = thread::spawn(move || {
             print!("{prompt}: ");
+            if std::io::stdout().flush().is_err() {
+                println!()
+            };
             let mut input = String::new();
             std::io::stdin()
                 .read_line(&mut input)
