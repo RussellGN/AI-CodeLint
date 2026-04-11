@@ -5,7 +5,7 @@ use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    get_api_key_fallable, PathDisplay, CRATE_NAME, OPENROUTER_API_KEY_DASH_URL,
+    get_api_key_fallable, CLIFormatter, CRATE_NAME, OPENROUTER_API_KEY_DASH_URL,
     OPENROUTER_API_KEY_VARNAME,
 };
 
@@ -64,7 +64,7 @@ impl Config {
 
     fn prompt_user_and(prompt: String) -> Result<String, String> {
         let thread_handle = thread::spawn(move || {
-            print!("{prompt}: ");
+            print!("{prompt}");
             if std::io::stdout().flush().is_err() {
                 println!()
             };
@@ -86,19 +86,25 @@ impl Config {
     pub async fn walkthrough(&mut self) -> Result<(), String> {
         // ask for model preference
         let input = Self::prompt_user_and(format!(
-            "Enter model to use for linting (default is {DEFAULT_MODEL})"
+            "Enter model to use for linting {} ",
+            self.model().default_display()
         ))?;
-        self.set_model(input).await?;
+        if !input.trim().is_empty() {
+            self.set_model(input.trim().to_owned()).await?;
+        }
 
         // ask for max output tokens preference
         let input = Self::prompt_user_and(format!(
-            "Enter max output token usage for each lint request (default is {DEFAULT_MAX_TOKEN_USAGE})"
+            "Enter max output token usage for each lint request {} ",
+            self.max_tokens().to_string().default_display()
         ))?;
-        let input = input
-            .trim()
-            .parse()
-            .map_err(|e| format!("error parsing max token usage input: {e}"))?;
-        self.set_max_tokens(input).await?;
+        if !input.trim().is_empty() {
+            let input = input
+                .trim()
+                .parse()
+                .map_err(|e| format!("error parsing max token usage input: {e}"))?;
+            self.set_max_tokens(input).await?;
+        }
 
         // ask for api key
         // TODO: handle token already exists, and instruct user where to get token
@@ -106,7 +112,7 @@ impl Config {
             Ok(key) => ("change", key),
             _ => ("set", String::from("undefined/inaccessible")),
         };
-        let  input = Self::prompt_user_and(format!("Would you like instructions to {api_key_prompt_action} your OPENROUTER_API_KEY environment variable (currently {api_key_prompt_suffix})? (y/n)"))?.to_lowercase();
+        let  input = Self::prompt_user_and(format!("Would you like instructions to {api_key_prompt_action} your OPENROUTER_API_KEY environment variable (currently {api_key_prompt_suffix})? (yes/no) {} ", "no".default_display()))?.to_lowercase();
         let input = input.trim();
 
         if input == "y" || input == "yes" {
@@ -121,9 +127,10 @@ impl Config {
                     )
                 }
             ))?;
-            Self::print_api_key_env_var_configuration_instructions(&input);
+            Self::print_api_key_env_var_configuration_instructions(input.trim());
         }
 
+        println!("\n{}\n", "configuration complete!".cyan());
         Ok(())
     }
 
@@ -163,7 +170,7 @@ impl Config {
                         .bold()
                         .cyan()
                 );
-                println!("This saves your API key as an environment variable so the {CRATE_NAME} can authenticate your lint requests.");
+                println!("This saves your API key as an environment variable so that {CRATE_NAME} can authenticate your lint requests.");
                 println!("Restart your terminal after running it.");
             }
             _ => {
@@ -175,12 +182,16 @@ impl Config {
                         "echo 'export {OPENROUTER_API_KEY_VARNAME}=\"{api_key}\"' >> ~/<your_config_file>\n"
                     ).bold().cyan()
                 );
-                println!("Replace <your_config_file> with your actual shell config file (e.g. .bashrc, .zshrc).");
                 println!(
-                    "This permanently sets your API key so the {CRATE_NAME} can authenticate your lint requests."
+                    "Replace {} with your actual shell config file (e.g. .bashrc, .zshrc).",
+                    "<your_config_file>".bold()
                 );
                 println!(
-                    "Reload your shell: source ~/<your_config_file>  (or restart the terminal)"
+                    "This permanently sets your API key so that {CRATE_NAME} can authenticate your lint requests."
+                );
+                println!(
+                    "Finally, restart the terminal or (reload your shell: {})",
+                    "source ~/<your_config_file>".bold()
                 );
             }
         }

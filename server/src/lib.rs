@@ -43,13 +43,17 @@ pub async fn check_if_outdated() -> Result<(), String> {
     }
 }
 
-pub trait PathDisplay {
+pub trait CLIFormatter {
     fn path_display(self) -> ColoredString;
+    fn default_display(self) -> ColoredString;
 }
 
-impl<T: Colorize> PathDisplay for T {
+impl<T: Colorize> CLIFormatter for T {
     fn path_display(self) -> ColoredString {
         self.underline().yellow()
+    }
+    fn default_display(self) -> ColoredString {
+        format!("[{}]", self.purple()).into()
     }
 }
 

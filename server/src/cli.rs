@@ -6,7 +6,7 @@ use tokio::fs;
 
 use crate::{
     linter::{lint, LintResult},
-    PathDisplay,
+    CLIFormatter,
 };
 
 #[derive(Debug, Clone, PartialEq, ValueEnum)]
