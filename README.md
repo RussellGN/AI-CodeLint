@@ -38,8 +38,8 @@ Right now, the only IDE client in progress is the VS Code extension in this repo
 
 Links:
 
-- Latest release: [github.com/ai-codelint/releases/latest](https://github.com/ai-codelint/releases/latest)
-- Project website (still in development): [russellgn.github.io/ai-codelint](https://russellgn.github.io/ai-codelint)
+- Latest release: [github.com/AI-CodeLint/releases/latest](https://github.com/AI-CodeLint/releases/latest)
+- Project website (still in development): [russellgn.github.io/AI-CodeLint](https://russellgn.github.io/AI-CodeLint)
 
 ## OpenRouter-First Model Strategy
 
