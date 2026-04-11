@@ -40,7 +40,7 @@ pub async fn lint(
         return Ok(vec![]);
     }
 
-    let preamble = format!("You are {CRATE_NAME}. Find only real runtime/behavior logic bugs that survive compilation within the provided code. Ignore style, syntax, type, or IDE/compiler-detectable issues. Return JSON only: [{{\"overview\":\"string\",\"start_line\":integer,\"end_line\":integer}}]. Use zero-based line numbers encompassing the entire affected code-block/statements. If none, return exactly []. Else return at most 3 items. Each overview: concrete bug + why behavior breaks; no markdown; no speculation. Do not inlcude whitespace in returned json.");
+    let preamble = format!("You are {CRATE_NAME}. Find only real runtime/behavior logic bugs that survive compilation within the provided code. Ignore style, syntax, type, or IDE/compiler-detectable issues. Return JSON only: {{\"errs\":[{{\"overview\":\"string\",\"start_line\":integer,\"end_line\":integer}}]}}. Use zero-based line numbers encompassing the entire affected code-block/statements. If none, return exactly {{\"errs\":[]}}. Else return at most 10 items. Each overview: concrete bug + why behavior breaks; no markdown; no speculation. Do not inlcude whitespace in returned json.");
 
     let config = Config::build().await?;
 
