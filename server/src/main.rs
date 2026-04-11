@@ -20,8 +20,14 @@ async fn main() {
     let args = Args::parse();
 
     if args.configure {
-        Config::walkthrough();
-        return;
+        let config_result = match Config::build().await {
+            Ok(mut config) => config.walkthrough().await,
+            Err(e) => Err(e),
+        };
+        if let Err(e) = config_result {
+            println!("{}: {e}", "configuration failed".bold().red());
+            std::process::exit(1)
+        }
     }
 
     if args.mode == Some(Mode::Server) || args.verbose {

@@ -8,7 +8,9 @@ use colored::{ColoredString, Colorize};
 use semver::Version;
 use serde::Deserialize;
 
+pub const OPENROUTER_API_KEY_VARNAME: &'static str = "OPENROUTER_API_KEY";
 pub const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
+pub const OPENROUTER_API_KEY_DASH_URL: &str = "https://openrouter.ai/keys";
 pub const DOCS_CACHE_SIZE: usize = 20;
 pub const CRATE_NAME: &str = env!("CARGO_PKG_NAME");
 
@@ -52,7 +54,7 @@ impl<T: Colorize> PathDisplay for T {
 }
 
 pub fn get_api_key() -> String {
-    match std::env::var("OPENROUTER_API_KEY") {
+    match std::env::var(OPENROUTER_API_KEY_VARNAME) {
         Ok(key) => key,
         Err(e) => {
             println!(
@@ -64,4 +66,8 @@ pub fn get_api_key() -> String {
             std::process::exit(1)
         }
     }
+}
+
+pub fn get_api_key_fallable() -> Result<String, String> {
+    std::env::var(OPENROUTER_API_KEY_VARNAME).map_err(|e| e.to_string())
 }

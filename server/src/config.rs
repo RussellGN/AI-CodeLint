@@ -1,9 +1,13 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, thread};
 
+use colored::Colorize;
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 
-use crate::CRATE_NAME;
+use crate::{
+    get_api_key_fallable, PathDisplay, CRATE_NAME, OPENROUTER_API_KEY_DASH_URL,
+    OPENROUTER_API_KEY_VARNAME,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -12,12 +16,15 @@ pub struct Config {
     max_tokens: u32,
 }
 
+const DEFAULT_MODEL: &str = "nvidia/nemotron-3-super-120b-a12b:free";
+const DEFAULT_MAX_TOKEN_USAGE: u32 = 500;
+
 impl Default for Config {
     fn default() -> Self {
         Config {
             path: None,
-            max_tokens: 500,
-            model: "nvidia/nemotron-3-super-120b-a12b:free".to_owned(),
+            max_tokens: DEFAULT_MAX_TOKEN_USAGE,
+            model: DEFAULT_MODEL.to_owned(),
         }
     }
 }
@@ -55,11 +62,65 @@ impl Config {
         }
     }
 
-    pub fn walkthrough() {
-        // ask for api key
+    fn prompt_user_and(prompt: String) -> Result<String, String> {
+        let thread_handle = thread::spawn(move || {
+            print!("{prompt}: ");
+            let mut input = String::new();
+            std::io::stdin()
+                .read_line(&mut input)
+                .map_err(|e| format!("failed to read user input: {e}"))?;
+            println!();
+            Ok::<String, String>(input)
+        });
+
+        let input = thread_handle
+            .join()
+            .map_err(|e| format!("failed to join prompt thread: {e:#?}"))??;
+
+        Ok(input)
+    }
+
+    pub async fn walkthrough(&mut self) -> Result<(), String> {
         // ask for model preference
+        let input = Self::prompt_user_and(format!(
+            "Enter model to use for linting (default is {DEFAULT_MODEL})"
+        ))?;
+        self.set_model(input).await?;
+
         // ask for max output tokens preference
-        todo!()
+        let input = Self::prompt_user_and(format!(
+            "Enter max output token usage for each lint request (default is {DEFAULT_MAX_TOKEN_USAGE})"
+        ))?;
+        let input = input
+            .parse()
+            .map_err(|e| format!("error parsing max token usage input: {e}"))?;
+        self.set_max_tokens(input).await?;
+
+        // ask for api key
+        // TODO: handle token already exists, and instruct user where to get token
+        let (api_key_prompt_action, api_key_prompt_suffix) = match get_api_key_fallable() {
+            Ok(key) => ("change", key),
+            _ => ("set", String::from("undefined/inaccessible")),
+        };
+        let  input = Self::prompt_user_and(format!("Would you like instructions to {api_key_prompt_action} your OPENROUTER_API_KEY environment variable (currently {api_key_prompt_suffix})? (y/n)"))?.to_lowercase();
+        let input = input.trim();
+
+        if input == "y" || input == "yes" {
+            let input = Self::prompt_user_and(format!(
+                "Enter your new OPENROUTER_API_KEY {}",
+                if api_key_prompt_suffix == "undefined/inaccessible" {
+                    format!("(currently {api_key_prompt_suffix})")
+                } else {
+                    format!(
+                        "(you can signup and get one at {})",
+                        OPENROUTER_API_KEY_DASH_URL.path_display()
+                    )
+                }
+            ))?;
+            Self::print_api_key_env_var_configuration_instructions(&input);
+        }
+
+        Ok(())
     }
 
     pub fn model(&self) -> &str {
@@ -86,5 +147,38 @@ impl Config {
     pub async fn set_max_tokens(&mut self, max_tokens: u32) -> Result<(), String> {
         self.max_tokens = max_tokens;
         self.update_config_file().await
+    }
+
+    fn print_api_key_env_var_configuration_instructions(api_key: &str) {
+        match std::env::consts::OS {
+            "windows" => {
+                println!("Run this command in PowerShell (run as Administrator if required):\n");
+                println!(
+                    "{}",
+                    format!("setx {OPENROUTER_API_KEY_VARNAME} \"{api_key}\"\n")
+                        .bold()
+                        .cyan()
+                );
+                println!("This saves your API key as an environment variable so the {CRATE_NAME} can authenticate your lint requests.");
+                println!("Restart your terminal after running it.");
+            }
+            _ => {
+                println!("Run this command in your terminal:\n");
+                println!(
+                    "{}",
+                    format!(
+
+                        "echo 'export {OPENROUTER_API_KEY_VARNAME}=\"{api_key}\"' >> ~/<your_config_file>\n"
+                    ).bold().cyan()
+                );
+                println!("Replace <your_config_file> with your actual shell config file (e.g. .bashrc, .zshrc).");
+                println!(
+                    "This permanently sets your API key so the {CRATE_NAME} can authenticate your lint requests."
+                );
+                println!(
+                    "Reload your shell: source ~/<your_config_file>  (or restart the terminal)"
+                );
+            }
+        }
     }
 }
