@@ -1,3 +1,3 @@
-- implement config walkthrough
 - publish vscode extension, with binary install script built in
 - create unified release CI
+- detect and add path to env on load if needed
