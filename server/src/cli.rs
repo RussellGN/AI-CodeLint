@@ -4,7 +4,10 @@ use clap::{Parser, ValueEnum};
 use colored::Colorize;
 use tokio::fs;
 
-use crate::linter::{lint, LintResult};
+use crate::{
+    linter::{lint, LintResult},
+    PathDisplay,
+};
 
 #[derive(Debug, Clone, PartialEq, ValueEnum)]
 pub enum Mode {
@@ -45,7 +48,7 @@ impl Args {
                         println!(
                             "{} {}",
                             "running linter on file:".cyan(),
-                            path.display().to_string().yellow().underline()
+                            path.display().to_string().path_display()
                         );
                         match lint(&text, self.model.as_deref(), self.max_tokens).await {
                             Err(e) => Err(format!(
@@ -78,7 +81,7 @@ impl Args {
         let Some(path) = &self.path else {
             return Err("no path provided".into());
         };
-        let path_display = path.display().to_string().yellow().underline();
+        let path_display = path.display().to_string().path_display();
         match fs::try_exists(path).await {
             Ok(exists) if !exists => Err(format!("no file found at path: {path_display}")),
             Err(e) => Err(format!("could not traverse: {path_display}, error: {e}",)),
