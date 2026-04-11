@@ -98,7 +98,7 @@ impl Args {
         errors.iter().for_each(|lint_err| println!("{lint_err}\n"));
         let err_count = errors.len();
         Ok(format!(
-            "found {} bug{} in {}",
+            "found {} logic bug{} in {}",
             err_count,
             if err_count == 1 { "" } else { "s" },
             path.display()
