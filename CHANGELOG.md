@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - 2026-04-14
+
+### Changed
+
+- Refined linter preamble requirements so each reported issue has structured `BUG`, `WHY`, and `IMPACT` sections inside JSON output.
+
+### Fixed
+
+- Fixed LSP document-open caching to store the actual document text (instead of the URI), preventing invalid first-pass diagnostics.
+
 ## [0.0.4] - 2026-04-11
 
 ### Added
