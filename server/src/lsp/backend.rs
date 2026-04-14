@@ -79,7 +79,6 @@ impl Backend {
 
     pub async fn cache_doc(&self, uri: &str, doc: Document) {
         self.cache.insert(uri.to_string(), doc);
-        self.print_cache()
     }
 
     pub async fn replace_doc_text(&self, uri: &str, new_text: String) {
