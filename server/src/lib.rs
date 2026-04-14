@@ -4,6 +4,8 @@ pub mod inference;
 pub mod linter;
 pub mod lsp;
 
+use std::path::Path;
+
 use colored::{ColoredString, Colorize};
 use semver::Version;
 use serde::Deserialize;
@@ -74,4 +76,10 @@ pub fn get_api_key() -> String {
 
 pub fn get_api_key_fallable() -> Result<String, String> {
     std::env::var(OPENROUTER_API_KEY_VARNAME).map_err(|e| e.to_string())
+}
+
+pub fn get_file_name(path: &Path) -> String {
+    path.file_name()
+        .map(|n| n.display().to_string())
+        .unwrap_or_default()
 }
