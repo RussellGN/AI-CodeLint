@@ -45,7 +45,7 @@ impl LanguageServer for Backend {
         if self.is_doc_cached(&uri_str).await {
             trace!("skipping compile_diagnostics on open for unchanged cached doc: {uri_str}",);
         } else {
-            self.cache_doc(&uri_str, Document::new(uri_str.to_string(), vec![]))
+            self.cache_doc(&uri_str, Document::new(params.text_document.text, vec![]))
                 .await;
             debug!("started watching file: {uri_str}");
             self.compile_diagnostics(uri).await;

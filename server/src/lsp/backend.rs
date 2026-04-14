@@ -132,8 +132,7 @@ impl Backend {
 
     pub async fn compile_diagnostics(&self, uri: Url) {
         debug!("compiling diagnostics for {}", uri);
-        let Some(text_to_compile) = ({ self.cache.get(uri.as_str()).map(|doc| doc.text.clone()) })
-        else {
+        let Some(text_to_compile) = self.cache.get(uri.as_str()).map(|doc| doc.text.clone()) else {
             warn!("cannot compile diagnostics; file not found in cache: {uri}");
             return;
         };
