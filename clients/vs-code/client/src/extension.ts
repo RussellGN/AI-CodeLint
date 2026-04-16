@@ -31,6 +31,9 @@ export async function activate(_context: vscode.ExtensionContext) {
    const clientOptions: lsp.LanguageClientOptions = {
       documentSelector: [{ scheme: "file", language: "typescript" }],
       traceOutputChannel,
+      connectionOptions: {
+         maxRestartCount: 0,
+      },
    };
    client = new lsp.LanguageClient("ai-codelint", "AI CodeLint", serverOptions, clientOptions);
    client.start();
