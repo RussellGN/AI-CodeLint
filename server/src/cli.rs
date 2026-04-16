@@ -50,7 +50,16 @@ impl Args {
                             "running linter on file:".cyan(),
                             path.display().to_string().path_display()
                         );
-                        match lint(&text, self.model.as_deref(), self.max_tokens).await {
+                        let filename = self
+                            .path
+                            .clone()
+                            .unwrap_or_default()
+                            .file_name()
+                            .unwrap_or_default()
+                            .to_string_lossy()
+                            .to_string();
+
+                        match lint(&filename, &text, self.model.as_deref(), self.max_tokens).await {
                             Err(e) => Err(format!(
                                 "could not lint contents at {}. Error: {e}",
                                 path.display()

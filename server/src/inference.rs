@@ -39,6 +39,8 @@ pub async fn invoke_model(
             .into(),
     ];
 
+    trace!("{messages:#?}");
+
     let req = CreateChatCompletionRequestArgs::default()
         .model(model)
         .messages(messages)

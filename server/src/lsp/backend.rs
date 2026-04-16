@@ -136,7 +136,15 @@ impl Backend {
             return;
         };
 
-        match lint(&text_to_compile, None, None).await {
+        let filename = uri
+            .to_file_path()
+            .unwrap_or_default()
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
+
+        match lint(&filename, &text_to_compile, None, None).await {
             Err(e) => error!("lint failed for {uri}: {e}"),
             Ok(errs) => {
                 debug!("lint returned {} diagnostics for {uri}", errs.len());

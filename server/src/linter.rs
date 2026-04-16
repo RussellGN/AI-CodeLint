@@ -30,22 +30,30 @@ impl Display for LintResult {
 }
 
 pub async fn lint(
+    filename: &str,
     text: &str,
     model_overide: Option<&str>,
     max_tokens_overide: Option<u32>,
 ) -> Result<Vec<LintResult>, String> {
-    debug!("running lint on document length={}", text.len());
+    debug!(
+        "running lint on {filename} with content length={}",
+        text.len()
+    );
     if text.trim().is_empty() {
         warn!("received empty document text for linting, returning...");
         return Ok(vec![]);
     }
+    if filename.trim().is_empty() {
+        warn!("received blank filename for linting, returning...");
+        return Ok(vec![]);
+    }
 
-    let preamble = format!("You are {CRATE_NAME}. Find only real runtime/behavior logic bugs that survive compilation within the provided code. Ignore style, syntax, type, or IDE/compiler-detectable issues. Return JSON only: [{{\"overview\":\"string\",\"start_line\":integer,\"end_line\":integer}}]. Use zero-based line numbers encompassing the entire affected code-block/statements. If none, return exactly : []. Else return at most 10 items. Each overview must follow this exact format with two newlines between sections: 'BUG: <type of bug in 3-6 words>\\n\\nWHY: <what the code does wrong and how it breaks behavior>\\n\\nIMPACT: <the runtime consequence if this executes>'. No markdown, no speculation, no whitespace outside the JSON string values. Do not include other unnecessary whitespace in returned json.");
+    let preamble = format!("You are {CRATE_NAME}. Find only real runtime/behavior logic bugs that survive compilation within the provided code. Ignore style, syntax, type, or IDE/compiler-detectable issues. Return JSON only: [{{\"overview\":\"string\",\"start_line\":integer,\"end_line\":integer}}]. Use zero-based line numbers encompassing the entire affected code-block/statements. If none, return exactly : []. Else return at most 10 items. If the filename provided is not of a recognizable programming language, return exactly : []. Each overview must follow this exact format with two newlines between sections: 'BUG: <type of bug in 3-6 words>\\n\\nWHY: <what the code does wrong and how it breaks behavior>\\n\\nIMPACT: <the runtime consequence if this executes>'. No markdown, no speculation, no whitespace outside the JSON string values. Do not include other unnecessary whitespace in returned json.");
 
     let config = Config::build().await?;
 
     let res = invoke_model(
-        text,
+        &format!("filename:{filename}\n content: {text}"),
         model_overide.unwrap_or(config.model()),
         &preamble,
         max_tokens_overide.unwrap_or(config.max_tokens()),
