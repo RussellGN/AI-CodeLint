@@ -5,7 +5,8 @@
       "lib": ["ES2019"],
       "outDir": "dist",
       "rootDir": "client/src",
-      "sourceMap": true
+      "sourceMap": true,
+      "resolveJsonModule": true
    },
    "include": ["client/src"],
    "exclude": ["node_modules", ".vscode-test"]

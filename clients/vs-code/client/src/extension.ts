@@ -1,9 +1,14 @@
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
+import { checkAndReportIfOutdated } from "./lib";
 
 let client: lsp.LanguageClient;
 
 export async function activate(_context: vscode.ExtensionContext) {
+   if ((await checkAndReportIfOutdated()) == "outdated") {
+      return;
+   }
+
    if (!process.env.OPENROUTER_API_KEY) {
       vscode.window.showErrorMessage("OPENROUTER_API_KEY environment variable is required to use this extension. Please set it globally on your machine. Aborting...");
       return;
