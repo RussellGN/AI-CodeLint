@@ -144,7 +144,7 @@ impl Backend {
             .to_string_lossy()
             .to_string();
 
-        match lint(&filename, &text_to_compile, None, None).await {
+        match lint(true, &filename, &text_to_compile, None, None).await {
             Err(e) => error!("lint failed for {uri}: {e}"),
             Ok(errs) => {
                 debug!("lint returned {} diagnostics for {uri}", errs.len());

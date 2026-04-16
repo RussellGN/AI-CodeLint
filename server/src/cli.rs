@@ -59,7 +59,15 @@ impl Args {
                             .to_string_lossy()
                             .to_string();
 
-                        match lint(&filename, &text, self.model.as_deref(), self.max_tokens).await {
+                        match lint(
+                            false,
+                            &filename,
+                            &text,
+                            self.model.as_deref(),
+                            self.max_tokens,
+                        )
+                        .await
+                        {
                             Err(e) => Err(format!(
                                 "could not lint contents at {}. Error: {e}",
                                 path.display()
