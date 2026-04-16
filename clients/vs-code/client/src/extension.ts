@@ -34,7 +34,7 @@ export async function activate(_context: vscode.ExtensionContext) {
    };
 
    const clientOptions: lsp.LanguageClientOptions = {
-      documentSelector: [{ scheme: "file", language: "typescript" }],
+      documentSelector: [{ scheme: "file" }, { scheme: "untitled" }],
       traceOutputChannel,
       connectionOptions: {
          maxRestartCount: 0,

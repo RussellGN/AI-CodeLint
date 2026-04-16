@@ -48,17 +48,9 @@
       "vscode": "^1.66.0"
    },
    "activationEvents": [
-      "onLanguage:typescript"
+      "onLanguage"
    ],
    "contributes": {
-      "languages": [
-         {
-            "id": "typescript",
-            "extensions": [
-               ".ts"
-            ]
-         }
-      ],
       "configuration": {
          "type": "object",
          "title": "ai-codelint",
