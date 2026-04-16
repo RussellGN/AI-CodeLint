@@ -1,8 +1,7 @@
-- standardize all cli output, reduce noise
-- enable code extension use in all languages
 - detect and add path to env on load if needed
 - publish vscode extension, with binary install script built in
 - create unified release CI
 - use markdown for error overview
+- standardize all cli output, reduce noise
 - create minimal dedicated interface for linter showcasing
 - create jetbrains ides extension
