@@ -45,7 +45,7 @@ Right now, the only IDE client available is the VS Code extension in this reposi
 
 ## Inference
 
-AI CodeLint intentionally uses OpenRouter so inference-provider and model selection is quick and easy change and experiment with.
+AI CodeLint intentionally uses [OpenRouter](https://openrouter.ai/) so inference-provider and model selection is quick and easy to change and experiment with.
 
 - **You will need an [OpenRouter api key](https://openrouter.ai/keys) to use AI CodeLint**.
 - At the time of writing, signing up is free, with free models available for use with limits. 
@@ -55,11 +55,11 @@ Model quality note:
 
 - Best results so far come from frontier models.
 - Lesser models can produce highly variable lint quality and consistency.
-- Recommended model: `anthropic/claude-sonnet-4.6`.
+- Recommended model: `anthropic/claude-sonnet-4.6`
 
 ## Examples
 
-The repository includes intentionally buggy TypeScript samples under `lint samples/typescript`.
+This repository includes intentionally code samples under [`lint samples/`](https://github.com/RussellGN/AI-CodeLint/tree/main/lint%20samples/).
 
 These samples cover:
 
