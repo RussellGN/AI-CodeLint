@@ -34,7 +34,8 @@ Write-Info "Latest version: $Tag"
 # ── Construct download URL ────────────────────────────────────────────────────
 Write-Step "Downloading binary..."
 
-$File   = "$AppName-$Tag-$Target.exe"
+$Version = $Tag -replace '^v', ''
+$File   = "$AppName-$Version-$Target.exe"
 $Url    = "https://github.com/$Repo/releases/download/$Tag/$File"
 
 $InstallDir = "$env:LOCALAPPDATA\Programs\$AppName"

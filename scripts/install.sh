@@ -67,7 +67,8 @@ info "Latest version: $TAG"
 # ── Download ──────────────────────────────────────────────────────────────────
 header "Downloading binary..."
 
-FILE="${APP_NAME}-${TAG}-${TARGET}"
+VERSION="${TAG#v}"
+FILE="${APP_NAME}-${VERSION}-${TARGET}"
 URL="https://github.com/$REPO/releases/download/$TAG/$FILE"
 
 TMP_FILE="$(mktemp)"
