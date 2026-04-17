@@ -25,24 +25,42 @@
    </head>
 
    <body class="bg-black text-white text-center pt-30">
-      <div class="container mx-auto px-5">
-         <h1 class="text-2xl font-extrabold font-mono">AI CodeLint</h1>
+      <div class="container mx-auto flex flex-col items-center gap-5 px-5">
+         <div>
+            <h1 class="text-2xl font-extrabold font-mono">AI CodeLint</h1>
 
-         <p class="mb-4 font-thin">Boost code quality as you type</p>
+            <p class="mb-4 text-[whitesmoke] text-sm">
+               Boost code quality as you type. <br />
+               AI CodeLint uses LLMs to identify the logic bugs that survive compilation and traditional linting.
+            </p>
+         </div>
 
-         <img src="/lint-error.png" alt="code lint error" width="400" class="w-110 mx-auto rounded-lg mb-10" />
+         <div class="text-left">
+            <h2 class="mb-3 text-center font-mono text-lg font-bold">Install</h2>
 
-         <a
-            class="text-cyan-400 underline-offset-4 hover:text-cyan-200 transition-all underline"
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://github.com/RussellGN/AI-CodeLint/releases/latest"
-         >
-            Download pre-release ->
-         </a>
+            <div class="mb-3 border border-zinc-800 bg-zinc-900/50 p-1.5">
+               <div class="mb-3 flex items-center justify-between gap-4">
+                  <p class="text-xs uppercase tracking-wider text-zinc-400">macOS / Linux</p>
+                  <button type="button" class="copy-script-btn border border-cyan-800 px-2 text-[11px] text-cyan-300 transition-all hover:bg-cyan-950/40" data-copy-target="install-script-unix">
+                     Copy
+                  </button>
+               </div>
+               <code id="install-script-unix" class="block break-all text-xs text-cyan-300">curl -fsSL https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.sh | sh</code>
+            </div>
 
-         <a class="text-cyan-400 block text-3xl mt-5 hover:text-cyan-200 transition-all" target="_blank" rel="noopener noreferrer" href="https://github.com/RussellGN/AI-CodeLint">
-            <i class="hgi hgi-stroke hgi-github"></i>
+            <div class="border border-zinc-800 bg-zinc-900/50 p-1.5">
+               <div class="mb-3 flex items-center justify-between gap-4">
+                  <p class="text-xs uppercase tracking-wider text-zinc-400">Windows (PowerShell)</p>
+                  <button type="button" class="copy-script-btn border border-cyan-800 px-2 text-[11px] text-cyan-300 transition-all hover:bg-cyan-950/40" data-copy-target="install-script-win">
+                     Copy
+                  </button>
+               </div>
+               <code id="install-script-win" class="block break-all text-xs text-cyan-300">irm https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.ps1 | iex</code>
+            </div>
+         </div>
+
+         <a class="text-cyan-400 block text-3xl mt-5 hover:text-cyan-200 w-fit transition-all" target="_blank" rel="noopener noreferrer" href="https://github.com/RussellGN/AI-CodeLint">
+            <img src="/github.svg" alt="github" width="50" class="size-10" />
          </a>
       </div>
    </body>
