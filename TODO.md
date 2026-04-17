@@ -1,4 +1,3 @@
-- detect and add path to env on load if needed
 - publish vscode extension, with binary install script built in
 - create unified release CI
 - standardize all cli output, reduce noise
