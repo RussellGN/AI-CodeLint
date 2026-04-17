@@ -59,7 +59,7 @@ Model quality note:
 
 ## Examples
 
-This repository includes intentionally code samples under [`lint samples/`](https://github.com/RussellGN/AI-CodeLint/tree/main/lint%20samples/).
+This repository includes intentionally buggy code samples under [`lint samples/`](https://github.com/RussellGN/AI-CodeLint/tree/main/lint%20samples/).
 
 These samples cover:
 
