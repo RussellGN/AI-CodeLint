@@ -2,7 +2,7 @@
 
 Boost code quality as you type.
 
-AI CodeLint uses LLMs to identify the logic bugs that survive compilation and traditional linting.
+AI CodeLint uses LLMs to identify logic bugs that survive compilation and traditional linting.
 
 ## Install (Recommended)
 
@@ -48,7 +48,7 @@ Right now, the only IDE client available is the VS Code extension in this reposi
 AI CodeLint intentionally uses [OpenRouter](https://openrouter.ai/) so inference-provider and model selection is quick and easy to change and experiment with.
 
 - **You will need an [OpenRouter api key](https://openrouter.ai/keys) to use AI CodeLint**.
-- At the time of writing, signing up is free, with free models available for use with limits. 
+- At the time of writing, signing up is free, with free models available for use with limits.
 - Run `ai-codelint --configure` to set up api key and other optional runtime defaults.
 
 Model quality note:
@@ -73,4 +73,3 @@ They are useful for evaluation, and comparing model performance.
 Resources:
 
 - Official Docs (still in development): [russellgn.github.io/AI-CodeLint](https://russellgn.github.io/AI-CodeLint)
-
