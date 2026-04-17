@@ -4,6 +4,28 @@ Boost code quality as you type.
 
 AI CodeLint is an AI-first linter focused on finding real runtime and behavioral logic bugs that can survive compilation and traditional linting.
 
+## Install (Recommended)
+
+Install using the project scripts only.
+
+macOS/Linux:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.ps1 | iex
+```
+
+After install:
+
+```sh
+ai-codelint --version
+```
+
 ## Development Status
 
 AI CodeLint is in heavy development and is not production-ready yet.
@@ -33,13 +55,12 @@ Right now, the only IDE client in progress is the VS Code extension in this repo
 
 ## Availability
 
-- Main binary: available now for pre-release testing.
+- Main binary: available now for pre-release testing via install scripts.
 - VS Code extension: in active development and not yet published.
 
-Links:
+links:
 
-- Latest release: [github.com/RussellGN/AI-CodeLint/releases/latest](https://github.com/RussellGN/AI-CodeLint/releases/latest)
-- Project website (still in development): [russellgn.github.io/AI-CodeLint](https://russellgn.github.io/AI-CodeLint)
+- Docs (still in development): [russellgn.github.io/AI-CodeLint](https://russellgn.github.io/AI-CodeLint)
 
 ## OpenRouter-First Model Strategy
 
