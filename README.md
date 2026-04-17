@@ -2,11 +2,9 @@
 
 Boost code quality as you type.
 
-AI CodeLint is an AI-first linter focused on finding real runtime and behavioral logic bugs that can survive compilation and traditional linting.
+AI CodeLint uses LLMs to identify the logic bugs that survive compilation and traditional linting.
 
 ## Install (Recommended)
-
-Install using the project scripts only.
 
 macOS/Linux:
 
@@ -34,40 +32,24 @@ AI CodeLint is in heavy development and is not production-ready yet.
 - Breaking changes are expected while core behavior is refined.
 - Current releases should be treated as pre-release testing builds.
 
-## Why It Is Different From Conventional Linters
+## Interface
 
-Conventional linters are great at syntax, formatting, type-level issues, and common rule-based smells. AI CodeLint targets a different layer: subtle logic and runtime behavior bugs that are often valid code and can pass normal lint/type checks.
+AI CodeLint consists of one standalone binary: `ai-codelint`.
 
-Examples include stale async state, shallow-copy mutation side effects, incorrect fallback operators, and review-evasive logic mistakes.
+That binary currently exposes two modes of operation via the command line:
 
-AI CodeLint is designed to complement existing linters, not replace them.
+- CLI mode: run lint checks from the terminal, like conventional linters.
+- LSP server mode: run as a language server so IDE clients can request diagnostics.
 
-## Project Structure and Interfaces
+Right now, the only IDE client available is the VS Code extension in this repository (unpublished). More editor integrations are planned later.
 
-AI CodeLint primarily consists of one standalone binary: `ai-codelint`.
+## Inference
 
-That binary currently exposes two interfaces:
+AI CodeLint intentionally uses OpenRouter so inference-provider and model selection is quick and easy change and experiment with.
 
-- CLI interface: run lint checks from the terminal, like conventional linters.
-- LSP server interface: run as a language server so IDE extensions can request diagnostics.
-
-Right now, the only IDE client in progress is the VS Code extension in this repository. More editor integrations are planned later.
-
-## Availability
-
-- Main binary: available now for pre-release testing via install scripts.
-- VS Code extension: in active development and not yet published.
-
-links:
-
-- Docs (still in development): [russellgn.github.io/AI-CodeLint](https://russellgn.github.io/AI-CodeLint)
-
-## OpenRouter-First Model Strategy
-
-AI CodeLint intentionally uses OpenRouter so model selection is easy to switch over time without hard-coupling to a single model provider.
-
-- Authentication uses the `OPENROUTER_API_KEY` environment variable.
-- You can change models through configuration or runtime flags.
+- **You will need an [OpenRouter api key](https://openrouter.ai/keys) to use AI CodeLint**.
+- At the time of writing, signing up is free, with free models available for use with limits. 
+- Run `ai-codelint --configure` to set up api key and other optional runtime defaults.
 
 Model quality note:
 
@@ -75,22 +57,20 @@ Model quality note:
 - Lesser models can produce highly variable lint quality and consistency.
 - Recommended model: `anthropic/claude-sonnet-4.6`.
 
-## Lint Samples Included
+## Examples
 
-The repository includes intentionally buggy TypeScript samples under `lint samples/typescript` from multiple sources (ChatGPT, Claude, and GPT-Codex).
+The repository includes intentionally buggy TypeScript samples under `lint samples/typescript`.
 
 These samples cover:
 
-- syntax/semantics mistakes,
+- syntax/semantics mistakes (should be ignored by linter),
 - easy rule-based linter catches,
-- subtle runtime logic bugs,
-- edge-case behavior,
-- and review-evasive patterns.
+- subtle logic bugs,
+- edge-case behavior and review-evasive patterns.
 
-They are useful for evaluation, regression testing, and comparing model performance.
+They are useful for evaluation, and comparing model performance.
 
-## Other Noteworthy Details
+Resources:
 
-- The binary checks recommended version status at startup.
-- Current IDE integration focus is TypeScript in VS Code.
-- The project is rapidly iterating toward a more complete release workflow and broader editor support.
+- Official Docs (still in development): [russellgn.github.io/AI-CodeLint](https://russellgn.github.io/AI-CodeLint)
+
