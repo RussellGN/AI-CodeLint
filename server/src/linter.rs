@@ -83,10 +83,10 @@ pub async fn lint(
 }
 
 fn try_to_extract_json(text: &str) -> Result<Cow<str>, &str> {
-    if let (Some(open_brac_index), Some(close_brac_index)) = (text.find("["), text.find("]")) {
+    if let (Some(open_brac_index), Some(close_brac_index)) = (text.find("["), text.rfind("]")) {
         Ok(Cow::Borrowed(&text[open_brac_index..close_brac_index + 1]))
     } else {
-        if let (Some(open_curly_index), Some(close_curly_index)) = (text.find("{"), text.find("}"))
+        if let (Some(open_curly_index), Some(close_curly_index)) = (text.find("{"), text.rfind("}"))
         {
             Ok(Cow::Owned(format!(
                 "[{}]",
