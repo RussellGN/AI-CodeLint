@@ -87,6 +87,6 @@ Write-Host "  ------------------------------------" -ForegroundColor DarkGray
 Write-Host "  Installation complete!" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Run " -NoNewline
-Write-Host "$AppName --help" -NoNewline -ForegroundColor Cyan
+Write-Host "$AppName --configure" -NoNewline -ForegroundColor Cyan
 Write-Host " to get started."
 Write-Host ""

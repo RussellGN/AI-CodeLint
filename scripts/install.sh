@@ -148,7 +148,7 @@ fi
 # ── Done ──────────────────────────────────────────────────────────────────────
 printf "\n${DIM}────────────────────────────────────${RESET}\n"
 printf "${BOLD}${GREEN}  Installation complete!${RESET}\n\n"
-printf "  Run ${CYAN}${APP_NAME} --help${RESET} to get started.\n"
+printf "  Run ${CYAN}${APP_NAME} --configure${RESET} to get started.\n"
 
 if ! already_in_path; then
   printf "  ${YELLOW}Note:${RESET} Restart your terminal (or source your shell config) first.\n"
