@@ -6,7 +6,7 @@ pub mod lsp;
 
 use std::path::Path;
 
-use colored::{Color, ColoredString, Colorize};
+use colored::{ColoredString, Colorize};
 use semver::Version;
 use serde::Deserialize;
 
@@ -60,13 +60,16 @@ impl<T: Colorize> CLIFormatter for T {
     fn success_display(self) -> ColoredString {
         self.bold().bright_green()
     }
+
     fn warning_display(self) -> ColoredString {
-        self.bold().color(Color::TrueColor {
-            r: 240,
-            g: 158,
-            b: 108,
-        })
+        // self.bold().color(colored::Color::TrueColor {
+        //     r: 240,
+        //     g: 158,
+        //     b: 108,
+        // })
+        format!("{} {}", "!!".bold().red(), self.bold()).into()
     }
+
     fn info_display(self) -> ColoredString {
         self.bold().cyan()
     }
@@ -74,9 +77,12 @@ impl<T: Colorize> CLIFormatter for T {
     fn error_display(self) -> ColoredString {
         self.bold().red()
     }
+
     fn path_display(self) -> ColoredString {
-        self.bold().underline().yellow()
+        // self.bold().underline().yellow()
+        self.bold().underline()
     }
+
     fn default_display(self) -> ColoredString {
         format!(
             "[{}]",
@@ -88,9 +94,11 @@ impl<T: Colorize> CLIFormatter for T {
         )
         .into()
     }
+
     fn prompt_display(self) -> ColoredString {
         self.bold()
     }
+
     fn normal_display(self) -> ColoredString {
         self.bold()
     }

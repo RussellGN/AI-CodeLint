@@ -24,7 +24,7 @@ pub async fn invoke_model(
         prompt.estimate_token_count() + preamble.estimate_token_count()
     );
     if model.to_lowercase().contains("free") {
-        println!("{}", format!("NOTE: {model} is a free model and will likely give bad results or fail completely \nconsider using {RECOMMENDED_MODEL} (run '{}'). \nProceeding...", (CRATE_NAME.to_owned() + " --configure").info_display()).warning_display())
+        println!("\n{}", format!("NOTE: {model} is a free model and will likely give bad results or fail completely \nconsider using {RECOMMENDED_MODEL} (run '{}'). \nProceeding...", (CRATE_NAME.to_owned() + " --configure").info_display()).warning_display())
     }
 
     let config = OpenAIConfig::new()
@@ -72,7 +72,7 @@ pub async fn invoke_model(
                     .ok()
                     .and_then(|v| v["error"]["message"].as_str().map(str::to_owned))
                     .unwrap_or( raw);
-                format!("{model} returned an error: {hint}")
+                format!("OpenRouter returned an error: {hint}")
             }
 
         };
