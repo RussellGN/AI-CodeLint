@@ -5,13 +5,10 @@
       <link rel="icon" type="image/svg+xml" href="/logo.svg" />
       <title>AI CodeLint</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css" />
-
       <meta name="description" content="AI CodeLint uses frontier LLMs to identify logic bugs in realtime, with the VS Code extension now live on the Marketplace and more IDE extensions incoming." />
       <meta name="keywords" content="AI CodeLint, code linting, AI code review, static analysis, code quality, developer tools" />
       <meta name="author" content="Russell Gundani" />
       <meta name="robots" content="index, follow" />
-
       <meta property="og:title" content="AI CodeLint | Boost Code Quality as You Type" />
       <meta
          property="og:description"
@@ -19,69 +16,118 @@
       />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="AI CodeLint" />
-
       <meta name="twitter:card" content="summary" />
       <meta name="twitter:title" content="AI CodeLint | Boost Code Quality as You Type" />
       <meta
          name="twitter:description"
          content="AI CodeLint uses frontier LLMs to identify logic bugs in realtime, with the VS Code extension now live on the Marketplace and more IDE extensions incoming."
       />
-
       <script defer type="module" src="/src/main.ts"></script>
    </head>
 
-   <body class="bg-black text-white text-center pt-30">
-      <div class="container mx-auto flex flex-col items-center gap-5 px-5">
-         <div>
-            <h1 class="text-2xl font-extrabold font-mono">AI CodeLint</h1>
+   <body class="bg-black text-white min-h-dvh grid place-items-center py-12 px-8">
+      <main class="w-full max-w-2xl flex flex-col gap-8">
+         <header class="text-center">
+            <h1 class="font-mono text-2xl font-extrabold">AI CodeLint</h1>
+            <p class="mt-2 text-base text-zinc-400 leading-relaxed">
+               Boost code quality as you type.<br />
+               Catches logic bugs that survive compilation and traditional linting.
+            </p>
+         </header>
 
-            <p class="mb-4 text-[whitesmoke] text-sm">
-               Boost code quality as you type. <br />
-               AI CodeLint uses LLMs to identify logic bugs that survive compilation and traditional linting.
+         <div class="flex items-start gap-3 border border-zinc-700 bg-zinc-900 px-4 py-3">
+            <span class="mt-1.5 size-2 shrink-0 rounded-full bg-amber-400"></span>
+            <p class="text-sm text-zinc-400 leading-relaxed">
+               <strong class="text-zinc-200 font-semibold">Heavy development.</strong>
+               This site and the project overall are incomplete. Expect rough edges.
             </p>
          </div>
 
-         <div class="text-left">
-            <h2 class="mb-3 text-center font-mono text-lg font-bold">Install</h2>
-
-            <div class="mb-3 border border-zinc-800 bg-zinc-900/50 p-1.5">
-               <div class="mb-3 flex items-center justify-between gap-4">
-                  <p class="text-xs uppercase tracking-wider text-zinc-400">macOS / Linux</p>
-                  <button type="button" class="copy-script-btn border border-cyan-800 px-2 text-[11px] text-cyan-300 transition-all hover:bg-cyan-950/40" data-copy-target="install-script-unix">
-                     Copy
-                  </button>
+         <section>
+            <p class="mb-3 font-mono text-xs font-semibold uppercase tracking-widest text-zinc-500">Install</p>
+            <div class="flex flex-col gap-2">
+               <div class="border border-zinc-800 bg-zinc-900/50 p-3">
+                  <div class="mb-2 flex items-center justify-between gap-4">
+                     <p class="text-xs uppercase tracking-wider text-zinc-400">macOS / Linux</p>
+                     <button
+                        type="button"
+                        class="copy-script-btn border border-cyan-800 px-2 py-0.5 text-xs text-cyan-300 hover:bg-cyan-950/40 transition-colors"
+                        data-copy-target="install-script-unix"
+                     >
+                        Copy
+                     </button>
+                  </div>
+                  <code id="install-script-unix" class="block break-all text-sm text-cyan-300">curl -fsSL https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.sh | sh</code>
                </div>
-               <code id="install-script-unix" class="block break-all text-xs text-cyan-300">curl -fsSL https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.sh | sh</code>
-            </div>
 
-            <div class="border border-zinc-800 bg-zinc-900/50 p-1.5">
-               <div class="mb-3 flex items-center justify-between gap-4">
-                  <p class="text-xs uppercase tracking-wider text-zinc-400">Windows (PowerShell)</p>
-                  <button type="button" class="copy-script-btn border border-cyan-800 px-2 text-[11px] text-cyan-300 transition-all hover:bg-cyan-950/40" data-copy-target="install-script-win">
-                     Copy
-                  </button>
+               <div class="border border-zinc-800 bg-zinc-900/50 p-3">
+                  <div class="mb-2 flex items-center justify-between gap-4">
+                     <p class="text-xs uppercase tracking-wider text-zinc-400">Windows (PowerShell)</p>
+                     <button
+                        type="button"
+                        class="copy-script-btn border border-cyan-800 px-2 py-0.5 text-xs text-cyan-300 hover:bg-cyan-950/40 transition-colors"
+                        data-copy-target="install-script-win"
+                     >
+                        Copy
+                     </button>
+                  </div>
+                  <code id="install-script-win" class="block break-all text-sm text-cyan-300">irm https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.ps1 | iex</code>
                </div>
-               <code id="install-script-win" class="block break-all text-xs text-cyan-300">irm https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.ps1 | iex</code>
             </div>
-         </div>
+         </section>
 
-         <div class="border border-cyan-900 bg-cyan-950/20 p-3 text-left">
+         <section>
+            <p class="mb-3 font-mono text-xs font-semibold uppercase tracking-widest text-zinc-500">Usage</p>
+            <ol class="flex flex-col gap-5">
+               <li class="flex gap-4">
+                  <span class="font-mono text-xs text-zinc-400 border border-zinc-600 size-6 shrink-0 flex items-center justify-center mt-0.5">1</span>
+                  <p class="text-sm text-zinc-400 leading-relaxed">Install the binary using the scripts above.</p>
+               </li>
+
+               <li class="flex gap-4">
+                  <span class="font-mono text-xs text-zinc-400 border border-zinc-600 size-6 shrink-0 flex items-center justify-center mt-0.5">2</span>
+                  <p class="text-sm text-zinc-400 leading-relaxed">
+                     Get an API key from <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">OpenRouter</a>.
+                  </p>
+               </li>
+
+               <li class="flex gap-4">
+                  <span class="font-mono text-xs text-zinc-400 border border-zinc-600 size-6 shrink-0 flex items-center justify-center mt-0.5">3</span>
+                  <div class="flex flex-col gap-2">
+                     <p class="text-sm text-zinc-400">Run the configuration wizard.</p>
+                     <code class="block text-sm text-cyan-300 bg-zinc-900 border border-zinc-800 px-3 py-1.5">ai-codelint --configure</code>
+                  </div>
+               </li>
+
+               <li class="flex gap-4">
+                  <span class="font-mono text-xs text-zinc-400 border border-zinc-600 size-6 shrink-0 flex items-center justify-center mt-0.5">4</span>
+                  <div class="flex flex-col gap-2">
+                     <p class="text-sm text-zinc-400">Lint a file from the CLI—</p>
+                     <code class="block break-all text-sm text-cyan-300 bg-zinc-900 border border-zinc-800 px-3 py-1.5">ai-codelint --mode cli --path &lt;path/to/file&gt;</code>
+                     <p class="text-xs font-mono uppercase tracking-widest text-zinc-600">or</p>
+                     <p class="text-sm text-zinc-400 leading-relaxed">install the VS Code extension and open any code file in a new editor window.</p>
+                  </div>
+               </li>
+            </ol>
+         </section>
+
+         <div class="border border-cyan-900 bg-cyan-950/20 p-4">
             <p class="text-xs uppercase tracking-wider text-cyan-300">Now Live</p>
-            <p class="mt-1 text-sm text-cyan-100">The VS Code extension is now published on the Visual Studio Marketplace.</p>
+            <p class="mt-1.5 text-base text-cyan-100">The VS Code extension is now published on the Visual Studio Marketplace.</p>
             <a
-               class="mt-3 inline-flex items-center border border-cyan-700 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-cyan-200 transition-all hover:bg-cyan-900/40"
+               class="mt-3 inline-flex items-center border border-cyan-700 px-3 py-1.5 text-sm font-semibold uppercase tracking-wide text-cyan-200 hover:bg-cyan-900/40 transition-colors"
                target="_blank"
                rel="noopener noreferrer"
                href="https://marketplace.visualstudio.com/items?itemName=russell-gn.ai-codelint"
             >
                Install VS Code Extension
             </a>
-            <p class="mt-2 text-xs text-zinc-300">Other IDE extensions are incoming.</p>
+            <p class="mt-2 text-sm text-zinc-400">Other IDE extensions are incoming.</p>
          </div>
 
-         <a class="text-cyan-400 block text-3xl mt-5 hover:text-cyan-200 w-fit transition-all" target="_blank" rel="noopener noreferrer" href="https://github.com/RussellGN/AI-CodeLint">
-            <img src="/github.svg" alt="github" width="50" class="size-10" />
+         <a class="mx-auto block opacity-40 hover:opacity-80 transition-opacity" target="_blank" rel="noopener noreferrer" href="https://github.com/RussellGN/AI-CodeLint">
+            <img src="/github.svg" alt="GitHub" class="size-9" />
          </a>
-      </div>
+      </main>
    </body>
 </html>
