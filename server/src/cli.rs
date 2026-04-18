@@ -68,8 +68,8 @@ impl Args {
                         .await
                         {
                             Err(e) => Err(format!(
-                                "could not lint contents at {}. Error: {e}",
-                                path.display()
+                                "could not lint contents at {}\n--> {e}",
+                                path.display().to_string().path_display()
                             )),
                             Ok(errors) => Self::print_lint_errors(&errors, path),
                         }

@@ -5,6 +5,7 @@ use async_openai::types::chat::{ResponseFormat, Verbosity};
 use colored::Colorize;
 use log::{debug, error, trace, warn};
 use serde::Deserialize;
+use serde_json::error::Category;
 
 use crate::config::Config;
 use crate::inference::invoke_model;
@@ -53,12 +54,13 @@ pub async fn lint(
 
     let config = Config::build().await?;
 
+    let model = model_overide.unwrap_or(config.model());
     let res = invoke_model(
         &format!(
             "{}filename:{filename}\n content: {text}",
             if use_markdown { "USE_MARKDOWN\n" } else { "" }
         ),
-        model_overide.unwrap_or(config.model()),
+        model,
         &preamble,
         max_tokens_overide.unwrap_or(config.max_tokens()),
         Verbosity::Medium,
@@ -68,9 +70,15 @@ pub async fn lint(
     trace!("raw lint response:\n\n{res}\n");
 
     let json = try_to_extract_json(&res)?;
+
     let errors_found = serde_json::from_str::<Vec<LintResult>>(&json).map_err(|e| {
         error!("{e}");
-        let err_message = format!("failed to parse lint results: {:?}", e.classify(),);
+        let err_message = match e.classify() {
+            Category::Io => format!("Failed to read the response from {model}."),
+            Category::Syntax => format!("Received an unrecognizable response from {model}. This is likely a bug — please report it."),
+            Category::Data => format!("Received an unexpected response from {model}. It may have returned an unsupported format."),
+            Category::Eof => format!("Response from {model} was incomplete — the output may have been cut off."),
+        };
         err_message
     })?;
 
