@@ -1,5 +1,6 @@
 {
    "name": "ai-codelint",
+   "publisher": "russell-gn",
    "version": "0.0.7",
    "description": "Boost code quality as you type",
    "icon": "./assets/logo.png",
@@ -25,6 +26,7 @@
       "watch:rolldown": "rolldown --watch -c",
       "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
       "package": "vsce package --no-dependencies",
+      "publish": "vsce publish --no-dependencies",
       "lint": "oxlint -c oxlint.json .",
       "fmt": "oxfmt --write .",
       "fmt:check": "oxfmt --check ."
