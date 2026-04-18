@@ -1,3 +1,4 @@
+use async_openai::error::OpenAIError;
 use async_openai::types::chat::{
     ChatCompletionRequestMessage, ChatCompletionRequestSystemMessageArgs,
     ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs, ResponseFormat,
@@ -5,6 +6,7 @@ use async_openai::types::chat::{
 };
 use async_openai::{config::OpenAIConfig, Client};
 use log::{debug, error};
+use serde_json::Value;
 
 use crate::config::RECOMMENDED_MODEL;
 use crate::{get_api_key, CLIFormatter, OPENROUTER_BASE_URL};
@@ -55,8 +57,28 @@ pub async fn invoke_model(
 
     debug!("sending inference request to {model}");
     let res = client.chat().create(req).await.map_err(|e| {
-        error!("inference request failed:\n\n {e}\n");
-        e.to_string()
+        error!("inference request failed: {e}");
+        let err_message = match e {
+            OpenAIError::ApiError(e) => format!("{model} rejected the request: {}",  e.message),
+            OpenAIError::FileSaveError(e) => format!("Failed to save a file needed for the request: {e}"),
+            OpenAIError::FileReadError(e) => format!("Failed to read a file needed for the request: {e}"),
+            OpenAIError::Reqwest(e) => 
+                format!("Could not reach {model} - check your internet connection and try again. ({e})"),
+            OpenAIError::StreamError(e) => 
+                format!("The connection to {model} was interrupted mid-response. Try again. ({e})"),
+            OpenAIError::InvalidArgument(e) => 
+                format!("An invalid argument was passed to {model}. This is likely a bug - please report it. ({e})",),
+            OpenAIError::JSONDeserialize(_, raw) => {
+                // try to pull a human-readable message out of the raw error body
+                let hint = serde_json::from_str::<Value>(&raw)
+                    .ok()
+                    .and_then(|v| v["error"]["message"].as_str().map(str::to_owned))
+                    .unwrap_or( raw);
+                format!("{model} returned an error: {hint}")
+            }
+
+        };
+        err_message
     })?;
 
     if let Some(usage) = &res.usage {

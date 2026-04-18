@@ -72,7 +72,7 @@ pub async fn lint(
     let json = try_to_extract_json(&res)?;
 
     let errors_found = serde_json::from_str::<Vec<LintResult>>(&json).map_err(|e| {
-        error!("{e}");
+        error!("lint results deserialization failed: {e}");
         let err_message = match e.classify() {
             Category::Io => format!("Failed to read the response from {model}."),
             Category::Syntax => format!("Received an unrecognizable response from {model}. This is likely a bug — please report it."),
