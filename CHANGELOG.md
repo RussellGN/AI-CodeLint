@@ -5,21 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Install (Recommended)
+## [0.0.7] - 2026-04-18
 
-Install AI CodeLint using the project scripts only.
+### Added
 
-macOS/Linux:
+- Clearer guidance when selected models are from free tiers.
 
-```sh
-curl -fsSL https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.sh | sh
-```
+### Changed
 
-Windows (PowerShell):
+- Improved CLI and lint output formatting.
 
-```powershell
-irm https://raw.githubusercontent.com/RussellGN/AI-CodeLint/main/scripts/install.ps1 | iex
-```
+### Fixed
+
+- Fixed bug in which LLM output was being incorrectly parsed (almost 50% of the time).
+- Fixed multiple inference/linter error paths to surface friendlier failures.
+- Fixed install scripts' UX.
+- Fixed config prompt wording and interaction clarity.
 
 ## [0.0.6] - 2026-04-17
 
