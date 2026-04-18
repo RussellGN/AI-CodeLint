@@ -132,7 +132,9 @@ jobs:
            uses: actions/upload-artifact@v4
            with:
               name: ai-codelint-${{ matrix.target }}
-              path: release-artifacts/${{ matrix.target }}/ai-codelint-${{ needs.prepare-release.outputs.version }}-${{ matrix.target }}${{ matrix.artifact_suffix }}
+              path: release-artifacts/${{ matrix.target }}/ai-codelint-${{
+                 needs.prepare-release.outputs.version }}-${{ matrix.target
+                 }}${{ matrix.artifact_suffix }}
               if-no-files-found: error
 
    publish-release:
@@ -160,8 +162,9 @@ jobs:
               tag_name: ${{ needs.prepare-release.outputs.tag }}
               name: AI CodeLint ${{ needs.prepare-release.outputs.version }}
               body_path: release-body.md
-              prerelease: true
-              draft: true
+              prerelease: false
+              draft: false
+              make_latest: true
               files: release-artifacts/*
               fail_on_unmatched_files: true
            env:
