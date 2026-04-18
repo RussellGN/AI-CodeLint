@@ -1,5 +1,4 @@
 - publish vscode extension, with binary install script built in
 - create unified release CI
-- standardize all cli output, reduce noise
-- create minimal dedicated interface for linter showcasing
 - create jetbrains ides extension
+- create minimal dedicated interface for linter showcasing
