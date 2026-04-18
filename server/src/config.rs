@@ -1,6 +1,5 @@
 use std::{io::Write, path::PathBuf, thread};
 
-use colored::Colorize;
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 

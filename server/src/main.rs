@@ -1,12 +1,11 @@
-use ai_codelint::config::Config;
-use ai_codelint::{check_if_outdated, CLIFormatter, CRATE_NAME};
 use clap::Parser;
-use colored::Colorize;
 use log::{info, LevelFilter};
 use tower_lsp::{LspService, Server};
 
 use ai_codelint::cli::{Args, Mode};
+use ai_codelint::config::Config;
 use ai_codelint::lsp::Backend;
+use ai_codelint::{check_if_outdated, CLIFormatter, CRATE_NAME};
 
 #[tokio::main]
 async fn main() {

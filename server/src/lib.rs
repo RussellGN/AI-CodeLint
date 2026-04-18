@@ -6,7 +6,7 @@ pub mod lsp;
 
 use std::path::Path;
 
-use colored::{Color, ColoredString, Colorize};
+use colored::{ColoredString, Colorize};
 use semver::Version;
 use serde::Deserialize;
 
