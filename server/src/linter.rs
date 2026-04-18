@@ -69,8 +69,9 @@ pub async fn lint(
 
     let json = try_to_extract_json(&res)?;
     let errors_found = serde_json::from_str::<Vec<LintResult>>(&json).map_err(|e| {
-        error!("failed to parse lint JSON response: {e}");
-        e.to_string()
+        error!("{e}");
+        let err_message = format!("failed to parse lint results: {:?}", e.classify(),);
+        err_message
     })?;
 
     debug!(
