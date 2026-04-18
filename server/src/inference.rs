@@ -9,7 +9,7 @@ use log::{debug, error};
 use serde_json::Value;
 
 use crate::config::RECOMMENDED_MODEL;
-use crate::{get_api_key, CLIFormatter, OPENROUTER_BASE_URL};
+use crate::{CLIFormatter, CRATE_NAME, OPENROUTER_BASE_URL, get_api_key};
 
 pub async fn invoke_model(
     prompt: &str,
@@ -24,7 +24,7 @@ pub async fn invoke_model(
         prompt.estimate_token_count() + preamble.estimate_token_count()
     );
     if model.to_lowercase().contains("free") {
-        println!("{}", format!("{model} is a free model and will likely give bad results, consider using {RECOMMENDED_MODEL}. Proceeding...").warning_display())
+        println!("{}", format!("NOTE: {model} is a free model and will likely give bad results or fail completely \nconsider using {RECOMMENDED_MODEL} (run '{}'). \nProceeding...", (CRATE_NAME.to_owned() + " --configure").info_display()).warning_display())
     }
 
     let config = OpenAIConfig::new()

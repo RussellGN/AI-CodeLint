@@ -81,6 +81,8 @@ impl Args {
             }
         };
 
+        println!();
+
         match res {
             Ok(msg) => {
                 println!("{}", msg.success_display());

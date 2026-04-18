@@ -6,7 +6,7 @@ pub mod lsp;
 
 use std::path::Path;
 
-use colored::{ColoredString, Colorize};
+use colored::{Color, ColoredString, Colorize};
 use semver::Version;
 use serde::Deserialize;
 
@@ -61,7 +61,11 @@ impl<T: Colorize> CLIFormatter for T {
         self.bold().bright_green()
     }
     fn warning_display(self) -> ColoredString {
-        self.bold().purple()
+        self.bold().color(Color::TrueColor {
+            r: 240,
+            g: 158,
+            b: 108,
+        })
     }
     fn info_display(self) -> ColoredString {
         self.bold().cyan()
