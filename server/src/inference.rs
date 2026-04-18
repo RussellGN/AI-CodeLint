@@ -4,8 +4,10 @@ use async_openai::types::chat::{
     Verbosity,
 };
 use async_openai::{config::OpenAIConfig, Client};
+use colored::Colorize;
 use log::{debug, error, trace};
 
+use crate::config::RECOMMENDED_MODEL;
 use crate::{get_api_key, OPENROUTER_BASE_URL};
 
 pub async fn invoke_model(
@@ -20,6 +22,9 @@ pub async fn invoke_model(
         "invoke model='{model}' | estimated input token count={} | max output tokens={max_tokens}",
         prompt.estimate_token_count() + preamble.estimate_token_count()
     );
+    if model.to_lowercase().contains("free") {
+        println!("{} {}", model.red().bold(), format!("is a free model and will likely give bad results, consider using {}. Proceeding...", RECOMMENDED_MODEL.bold()).red() )
+    }
 
     let config = OpenAIConfig::new()
         .with_api_base(OPENROUTER_BASE_URL)

@@ -16,6 +16,7 @@ pub struct Config {
     max_tokens: u32,
 }
 
+pub const RECOMMENDED_MODEL: &str = "anthropic/claude-sonnet-4.6";
 const DEFAULT_MODEL: &str = "nvidia/nemotron-3-super-120b-a12b:free";
 const DEFAULT_MAX_TOKEN_USAGE: u32 = 500;
 
