@@ -62,10 +62,8 @@ pub async fn invoke_model(
             OpenAIError::ApiError(e) => format!("{model} rejected the request: {}",  e.message),
             OpenAIError::FileSaveError(e) => format!("Failed to save a file needed for the request: {e}"),
             OpenAIError::FileReadError(e) => format!("Failed to read a file needed for the request: {e}"),
-            OpenAIError::Reqwest(e) => 
-                format!("Could not reach {model} - check your internet connection and try again. ({e})"),
-            OpenAIError::StreamError(e) => 
-                format!("The connection to {model} was interrupted mid-response. Try again. ({e})"),
+            OpenAIError::Reqwest(_) => format!("Could not reach {model} - check your internet connection and try again"),
+            OpenAIError::StreamError(_) => format!("The connection to {model} was interrupted mid-response. Try again."),
             OpenAIError::InvalidArgument(e) => 
                 format!("An invalid argument was passed to {model}. This is likely a bug - please report it. ({e})",),
             OpenAIError::JSONDeserialize(_, raw) => {
