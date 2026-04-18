@@ -19,7 +19,7 @@ pub async fn invoke_model(
     response_format: ResponseFormat,
 ) -> Result<String, String> {
     debug!(
-        "invoke model='{model}' | estimated input token count={} | max output tokens={max_tokens}",
+        "invoke {model}, with {} estimated input tokens, and max output tokens preference of {max_tokens}",
         prompt.estimate_token_count() + preamble.estimate_token_count()
     );
     if model.to_lowercase().contains("free") {
@@ -61,10 +61,9 @@ pub async fn invoke_model(
     })?;
 
     if let Some(usage) = &res.usage {
-        trace!(
-            "received {model} response with actual input_tokens={}, and output_tokens={}",
-            usage.prompt_tokens,
-            usage.completion_tokens
+        debug!(
+            "{model} processed {} input tokens, and produced {} output tokens",
+            usage.prompt_tokens, usage.completion_tokens
         );
     }
 

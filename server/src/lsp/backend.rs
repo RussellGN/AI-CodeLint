@@ -1,7 +1,7 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use dashmap::DashMap;
-use log::{debug, error, trace, warn};
+use log::{debug, error, info, trace, warn};
 use tokio::time::Instant;
 use tower_lsp::lsp_types::{Diagnostic, DiagnosticSeverity, Position, Range, Url};
 use tower_lsp::Client;
@@ -60,7 +60,7 @@ impl Backend {
             let stale_entry_key = stale_entry.key();
             self.cache.remove(stale_entry_key);
             trace!("removed stale doc from cache: {stale_entry_key}");
-            self.print_cache()
+            self.trace_cache()
         }
     }
 
@@ -68,7 +68,7 @@ impl Backend {
         self.cache.contains_key(uri)
     }
 
-    fn print_cache(&self) {
+    fn trace_cache(&self) {
         let cache = self
             .cache
             .iter()
@@ -86,7 +86,7 @@ impl Backend {
             cached_doc.hash = Document::hash_text(&new_text);
             cached_doc.text = new_text;
         } else {
-            warn!("could not find doc {uri} for text replacement")
+            warn!("could not find doc for text replacement: {uri}")
         }
     }
 
@@ -130,9 +130,9 @@ impl Backend {
     }
 
     pub async fn compile_diagnostics(&self, uri: Url) {
-        debug!("compiling diagnostics for {}", uri);
+        debug!("compiling diagnostics for {uri}");
         let Some(text_to_compile) = self.cache.get(uri.as_str()).map(|doc| doc.text.clone()) else {
-            warn!("cannot compile diagnostics; file not found in cache: {uri}");
+            warn!("cannot compile diagnostics, file not found in cache: {uri}");
             return;
         };
 
@@ -169,7 +169,7 @@ impl Backend {
                 self.client
                     .publish_diagnostics(uri, diagnostics, None)
                     .await;
-                trace!("published diagnostics");
+                info!("published diagnostics");
             }
         }
     }

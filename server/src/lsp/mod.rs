@@ -54,7 +54,7 @@ impl LanguageServer for Backend {
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         let uri = params.text_document.uri;
-        debug!("file changed: {}", uri);
+        debug!("file changed: {uri}");
 
         if let Some(changes) = params.content_changes.first() {
             trace!("updating document cache");
@@ -63,13 +63,13 @@ impl LanguageServer for Backend {
             trace!("clearing diagnostics");
             self.client.publish_diagnostics(uri, vec![], None).await;
         } else {
-            warn!("did_change fired with no content changes for {}", uri);
+            warn!("'did change' fired with no content changes for: {}", uri);
         };
     }
 
     async fn did_save(&self, params: DidSaveTextDocumentParams) {
         let uri = params.text_document.uri;
-        debug!("file saved: {}", uri);
+        info!("file saved: {uri}");
         let Some(current_text) = params.text else {
             warn!("no text received on 'save', abandoning...");
             return;
