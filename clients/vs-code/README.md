@@ -10,7 +10,6 @@ AI CodeLint is in heavy development and not production-ready yet.
 
 - Features and behavior can change quickly.
 - Breaking changes are expected while core behavior is refined.
-- The VS Code extension is currently unpublished and intended for pre-release testing.
 
 ## What This Extension Does
 
@@ -56,9 +55,17 @@ The root README currently recommends `anthropic/claude-sonnet-4.6` for best lint
 
 ## Install The VS Code Extension
 
-This extension is not yet published to the Marketplace.
+Install from the Visual Studio Marketplace:
 
-### Option A: Run In Extension Development Host
+- [AI CodeLint (russell-gn.ai-codelint)](https://marketplace.visualstudio.com/items?itemName=russell-gn.ai-codelint)
+
+Or install via CLI:
+
+```sh
+code --install-extension russell-gn.ai-codelint
+```
+
+### Option A: Run In Extension Development Host (Local Development)
 
 From the repository root:
 
@@ -71,7 +78,7 @@ Then in VS Code, run the launch config named **Launch VS Code Client** (F5). The
 
 - `SERVER_PATH=${workspaceRoot}/server/target/debug/ai-codelint`
 
-### Option B: Package As VSIX And Install Locally
+### Option B: Package As VSIX And Install Locally (Unreleased Builds)
 
 From `clients/vs-code`:
 

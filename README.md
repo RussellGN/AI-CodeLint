@@ -41,7 +41,11 @@ That binary currently exposes two modes of operation via the command line:
 - CLI mode: run lint checks from the terminal, like conventional linters.
 - LSP server mode: run as a language server so IDE clients can request diagnostics.
 
-Right now, the only IDE client available is the VS Code extension in this repository (unpublished). More editor integrations are planned later.
+The VS Code extension is now live on the Visual Studio Marketplace:
+
+- [AI CodeLint for VS Code](https://marketplace.visualstudio.com/items?itemName=russell-gn.ai-codelint)
+
+Other IDE extensions are incoming.
 
 ## Inference
 
