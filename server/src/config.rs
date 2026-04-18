@@ -117,14 +117,14 @@ impl Config {
 
         if input == "y" || input == "yes" {
             let input = Self::prompt_user_and(format!(
-                "Enter your new OPENROUTER_API_KEY {}",
+                "Enter your new OPENROUTER_API_KEY {} ",
                 if api_key_prompt_suffix == "undefined/inaccessible" {
-                    format!("(currently {api_key_prompt_suffix})")
-                } else {
                     format!(
                         "(you can signup and get one at {})",
                         OPENROUTER_API_KEY_DASH_URL.path_display()
                     )
+                } else {
+                    format!("(currently {api_key_prompt_suffix})")
                 }
             ))?;
             Self::print_api_key_env_var_configuration_instructions(input.trim());
@@ -172,7 +172,7 @@ impl Config {
                     "{}",
                     format!("setx {OPENROUTER_API_KEY_VARNAME} \"{api_key}\"\n").info_display()
                 );
-                println!("{}","This saves your API key as an environment variable so that {CRATE_NAME} can authenticate your lint requests. \nRestart your terminal after running it.".normal_display());
+                println!("{}",format!("This saves your API key as an environment variable so that {CRATE_NAME} can authenticate your lint requests. \nRestart your terminal after running it.").normal_display());
             }
             _ => {
                 println!(
@@ -191,7 +191,7 @@ impl Config {
                 );
                 println!(
                     "{}",
-                    "This permanently sets your API key so that {CRATE_NAME} can authenticate your lint requests.".normal_display()
+                    format!("This permanently sets your API key so that {CRATE_NAME} can authenticate your lint requests.").normal_display()
                 );
                 println!(
                     "{}",

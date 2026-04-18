@@ -71,10 +71,18 @@ impl<T: Colorize> CLIFormatter for T {
         self.bold().red()
     }
     fn path_display(self) -> ColoredString {
-        self.underline().yellow()
+        self.bold().underline().yellow()
     }
     fn default_display(self) -> ColoredString {
-        format!("[{}]", self.purple()).into()
+        format!(
+            "[{}]",
+            self.color(colored::Color::TrueColor {
+                r: 160,
+                g: 160,
+                b: 160,
+            })
+        )
+        .into()
     }
     fn prompt_display(self) -> ColoredString {
         self.bold()
