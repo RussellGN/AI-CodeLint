@@ -6,7 +6,7 @@ pub mod lsp;
 
 use std::path::Path;
 
-use colored::{ColoredString, Colorize};
+use colored::{Color, ColoredString, Colorize};
 use semver::Version;
 use serde::Deserialize;
 
@@ -46,16 +46,41 @@ pub async fn check_if_outdated() -> Result<(), String> {
 }
 
 pub trait CLIFormatter {
+    fn success_display(self) -> ColoredString;
+    fn info_display(self) -> ColoredString;
+    fn warning_display(self) -> ColoredString;
+    fn error_display(self) -> ColoredString;
     fn path_display(self) -> ColoredString;
     fn default_display(self) -> ColoredString;
+    fn prompt_display(self) -> ColoredString;
+    fn normal_display(self) -> ColoredString;
 }
 
 impl<T: Colorize> CLIFormatter for T {
+    fn success_display(self) -> ColoredString {
+        self.bold().bright_green()
+    }
+    fn warning_display(self) -> ColoredString {
+        self.bold().purple()
+    }
+    fn info_display(self) -> ColoredString {
+        self.bold().cyan()
+    }
+
+    fn error_display(self) -> ColoredString {
+        self.bold().red()
+    }
     fn path_display(self) -> ColoredString {
         self.underline().yellow()
     }
     fn default_display(self) -> ColoredString {
         format!("[{}]", self.purple()).into()
+    }
+    fn prompt_display(self) -> ColoredString {
+        self.bold()
+    }
+    fn normal_display(self) -> ColoredString {
+        self.bold()
     }
 }
 
@@ -65,9 +90,7 @@ pub fn get_api_key() -> String {
         Err(e) => {
             println!(
                 "{}: {e}",
-                "'OPENROUTER_API_KEY' environment variable is required"
-                    .bold()
-                    .red()
+                "'OPENROUTER_API_KEY' environment variable is required".error_display()
             );
             std::process::exit(1)
         }

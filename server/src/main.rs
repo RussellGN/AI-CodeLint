@@ -1,5 +1,5 @@
 use ai_codelint::config::Config;
-use ai_codelint::{check_if_outdated, CRATE_NAME};
+use ai_codelint::{check_if_outdated, CLIFormatter, CRATE_NAME};
 use clap::Parser;
 use colored::Colorize;
 use log::{info, LevelFilter};
@@ -13,7 +13,7 @@ async fn main() {
     dotenvy::dotenv().ok();
 
     if let Err(e) = check_if_outdated().await {
-        println!("{}: {e}", "version check failed".bold().red());
+        println!("{}: {e}", "version check failed".error_display());
         std::process::exit(1)
     }
 
@@ -25,7 +25,7 @@ async fn main() {
             Err(e) => Err(e),
         };
         if let Err(e) = config_result {
-            println!("{}: {e}", "configuration failed".bold().red());
+            println!("{}: {e}", "configuration failed".error_display());
             std::process::exit(1)
         }
     }
@@ -60,9 +60,7 @@ async fn main() {
     if args.mode.is_none() && !args.configure {
         println!(
             "{}",
-            "no args provided, run with --help for documentation"
-                .bold()
-                .red()
+            "no args provided, run with --help for documentation".error_display()
         );
         std::process::exit(1)
     }

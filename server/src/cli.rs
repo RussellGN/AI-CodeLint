@@ -1,7 +1,6 @@
 use std::path::{Path, PathBuf};
 
 use clap::{Parser, ValueEnum};
-use colored::Colorize;
 use tokio::fs;
 
 use crate::{
@@ -47,7 +46,7 @@ impl Args {
                     Ok(text) => {
                         println!(
                             "{} {}",
-                            "running linter on file:".cyan(),
+                            "running linter on file:".info_display(),
                             path.display().to_string().path_display()
                         );
                         let filename = self
@@ -84,11 +83,11 @@ impl Args {
 
         match res {
             Ok(msg) => {
-                println!("{}", msg.cyan());
+                println!("{}", msg.success_display());
                 std::process::exit(0)
             }
             Err(e) => {
-                println!("{}", e.red());
+                println!("{}", e.error_display());
                 std::process::exit(1)
             }
         }
@@ -112,7 +111,9 @@ impl Args {
         if errors.len() != 0 {
             println!("");
         }
-        errors.iter().for_each(|lint_err| println!("{lint_err}\n"));
+        errors
+            .iter()
+            .for_each(|lint_err| println!("{}", format!("{lint_err}\n").error_display()));
         let err_count = errors.len();
         Ok(format!(
             "found {} logic bug{} in {}",

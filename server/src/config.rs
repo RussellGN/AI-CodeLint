@@ -65,7 +65,7 @@ impl Config {
 
     fn prompt_user_and(prompt: String) -> Result<String, String> {
         let thread_handle = thread::spawn(move || {
-            print!("{prompt}");
+            print!("{}", prompt.prompt_display());
             if std::io::stdout().flush().is_err() {
                 println!()
             };
@@ -131,7 +131,7 @@ impl Config {
             Self::print_api_key_env_var_configuration_instructions(input.trim());
         }
 
-        println!("\n{}\n", "configuration complete!".cyan());
+        println!("\n{}\n", "configuration complete!".success_display());
         Ok(())
     }
 
@@ -164,35 +164,39 @@ impl Config {
     fn print_api_key_env_var_configuration_instructions(api_key: &str) {
         match std::env::consts::OS {
             "windows" => {
-                println!("Run this command in PowerShell (run as Administrator if required):\n");
                 println!(
                     "{}",
-                    format!("setx {OPENROUTER_API_KEY_VARNAME} \"{api_key}\"\n")
-                        .bold()
-                        .cyan()
+                    "Run this command in PowerShell (run as Administrator if required):\n"
+                        .normal_display()
                 );
-                println!("This saves your API key as an environment variable so that {CRATE_NAME} can authenticate your lint requests.");
-                println!("Restart your terminal after running it.");
+                println!(
+                    "{}",
+                    format!("setx {OPENROUTER_API_KEY_VARNAME} \"{api_key}\"\n").info_display()
+                );
+                println!("{}","This saves your API key as an environment variable so that {CRATE_NAME} can authenticate your lint requests. \nRestart your terminal after running it.".normal_display());
             }
             _ => {
-                println!("Run this command in your terminal:\n");
+                println!(
+                    "{}",
+                    "Run this command in your terminal:\n".normal_display()
+                );
                 println!(
                     "{}",
                     format!(
-
                         "echo 'export {OPENROUTER_API_KEY_VARNAME}=\"{api_key}\"' >> ~/<your_config_file>\n"
-                    ).bold().cyan()
+                    ).info_display()
                 );
                 println!(
-                    "Replace {} with your actual shell config file (e.g. .bashrc, .zshrc).",
-                    "<your_config_file>".bold()
+                    "{}",
+                    "Replace <your_config_file> with your actual shell config file (e.g. .bashrc, .zshrc).".normal_display()
                 );
                 println!(
-                    "This permanently sets your API key so that {CRATE_NAME} can authenticate your lint requests."
+                    "{}",
+                    "This permanently sets your API key so that {CRATE_NAME} can authenticate your lint requests.".normal_display()
                 );
                 println!(
-                    "Finally, restart the terminal or (reload your shell: {})",
-                    "source ~/<your_config_file>".bold()
+                    "{}",
+                    "Finally, restart the terminal or (reload your shell: source ~/<your_config_file>)".info_display()
                 );
             }
         }

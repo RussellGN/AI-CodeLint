@@ -8,7 +8,7 @@ use colored::Colorize;
 use log::{debug, error, trace};
 
 use crate::config::RECOMMENDED_MODEL;
-use crate::{get_api_key, OPENROUTER_BASE_URL};
+use crate::{get_api_key, CLIFormatter, OPENROUTER_BASE_URL};
 
 pub async fn invoke_model(
     prompt: &str,
@@ -23,7 +23,7 @@ pub async fn invoke_model(
         prompt.estimate_token_count() + preamble.estimate_token_count()
     );
     if model.to_lowercase().contains("free") {
-        println!("{} {}", model.red().bold(), format!("is a free model and will likely give bad results, consider using {}. Proceeding...", RECOMMENDED_MODEL.bold()).red() )
+        println!("{}", format!("{model} is a free model and will likely give bad results, consider using {RECOMMENDED_MODEL}. Proceeding...").warning_display())
     }
 
     let config = OpenAIConfig::new()
