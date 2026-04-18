@@ -45,8 +45,8 @@ $OutPath = Join-Path $InstallDir "$AppName.exe"
 Write-Info "Source : $Url"
 Write-Info "Dest   : $OutPath"
 
+Write-Info "Downloading, please wait..."
 try {
-    # Use a web client that follows redirects properly
     $wc = New-Object System.Net.WebClient
     $wc.DownloadFile($Url, $OutPath)
 } catch {
