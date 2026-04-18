@@ -2,7 +2,7 @@
    "name": "ai-codelint",
    "version": "0.0.7",
    "description": "Boost code quality as you type",
-   "icon": "../../website/public/logo.png",
+   "icon": "./assets/logo.png",
    "categories": [
       "AI",
       "Linters"
