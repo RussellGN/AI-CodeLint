@@ -67,7 +67,11 @@ info "Latest version: $TAG"
 # ── Download ──────────────────────────────────────────────────────────────────
 header "Downloading binary..."
 
-VERSION="${TAG#v}"
+case "$TAG" in
+  bin-v*) VERSION="${TAG#bin-v}" ;;
+  v*) VERSION="${TAG#v}" ;;
+  *) VERSION="$TAG" ;;
+esac
 FILE="${APP_NAME}-${VERSION}-${TARGET}"
 URL="https://github.com/$REPO/releases/download/$TAG/$FILE"
 

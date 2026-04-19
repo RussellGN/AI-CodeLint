@@ -7,13 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+## [0.0.8] - 2026-04-19
 
-- Published VS Code extension on the Visual Studio Marketplace.
+### fixed
 
-### Changed
-
-- Updated docs and website messaging to highlight Marketplace availability and that other IDE extensions are incoming.
+- LSP server startup error reporting
 
 ## [0.0.7] - 2026-04-18
 
