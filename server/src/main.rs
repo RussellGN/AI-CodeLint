@@ -14,9 +14,10 @@ async fn main() {
     let args = Args::parse();
 
     if let Err(e) = check_if_outdated().await {
-        println!("{} - {e}", "version check failed".error_display());
+        let startup_err = format!("version check failed: {e}");
+        eprintln!("{}", startup_err.error_display());
         if args.mode == Some(Mode::Server) {
-            lsp_startup_errs.push(format!("{} - {e}", "version check failed".error_display()));
+            lsp_startup_errs.push(startup_err);
         } else {
             std::process::exit(1)
         }
@@ -28,7 +29,7 @@ async fn main() {
             Err(e) => Err(e),
         };
         if let Err(e) = config_result {
-            println!("{}: {e}", "configuration failed".error_display());
+            eprintln!("{}: {e}", "configuration failed".error_display());
             std::process::exit(1)
         }
     }
@@ -62,7 +63,7 @@ async fn main() {
     }
 
     if args.mode.is_none() && !args.configure {
-        println!(
+        eprintln!(
             "{}",
             "no args provided, run with --help for documentation".error_display()
         );
