@@ -20,10 +20,11 @@ AI CodeLint is in heavy development and not production-ready yet.
 ## Prerequisites
 
 1. Install the `ai-codelint` binary.
-2. Set `OPENROUTER_API_KEY` as a global environment variable.
-3. Keep your extension/binary version aligned with the recommended version in `status.json`.
+2. If already installed, make sure its at the latest version.
+3. Acquire api key from [OpenRouter](https://openrouter.ai/keys).
+4. Run `ai-codelint --configure` and complete all steps.
 
-### Install The Binary (Recommended)
+### Install The Binary (or update existing)
 
 macOS/Linux:
 
@@ -51,21 +52,11 @@ Run the CLI walkthrough once to set defaults such as model and max output tokens
 ai-codelint --configure
 ```
 
-The root README currently recommends `anthropic/claude-sonnet-4.6` for best lint quality.
+Current evaluation recommends `anthropic/claude-sonnet-4.6` for best lint quality.
 
-## Install The VS Code Extension
+## For developers
 
-Install from the Visual Studio Marketplace:
-
-- [AI CodeLint (russell-gn.ai-codelint)](https://marketplace.visualstudio.com/items?itemName=russell-gn.ai-codelint)
-
-Or install via CLI:
-
-```sh
-code --install-extension russell-gn.ai-codelint
-```
-
-### Option A: Run In Extension Development Host (Local Development)
+### Run In Extension Development Host (Local Development)
 
 From the repository root:
 
@@ -78,7 +69,7 @@ Then in VS Code, run the launch config named **Launch VS Code Client** (F5). The
 
 - `SERVER_PATH=${workspaceRoot}/server/target/debug/ai-codelint`
 
-### Option B: Package As VSIX And Install Locally (Unreleased Builds)
+### Package As VSIX And Install Locally (Unreleased Builds)
 
 From `clients/vs-code`:
 
@@ -103,48 +94,23 @@ The extension currently contributes one setting:
 
 Use the **AI CodeLint trace** output channel in VS Code when troubleshooting.
 
-## Environment Variables
-
-- `OPENROUTER_API_KEY` (required): API key used for lint inference.
-- `SERVER_PATH` (optional): path to a custom `ai-codelint` binary. If not set, the extension uses `ai-codelint` from your PATH.
-
-Important: after changing environment variables globally, fully restart VS Code so the extension host picks them up.
-
 ## Troubleshooting
 
 ### "OPENROUTER_API_KEY environment variable is required"
 
-- Set `OPENROUTER_API_KEY` globally for your OS/shell.
+- Acquire api key from [OpenRouter](https://openrouter.ai/keys) and set `OPENROUTER_API_KEY` globally for your OS/shell.
 - Restart VS Code completely.
 
-### "Current version 'x' of ai-codelint is out of date"
+### "Version check failed"
 
 - Update your local setup to the latest recommended release.
 - Ensure extension and binary versions are up to date.
 
-### Server Does Not Start
+### Server Does Not Start (For developers)
 
 - Verify `ai-codelint --version` works in a terminal.
 - If using a custom path, verify `SERVER_PATH` points to an executable binary.
 - Set `ai-codelint.trace.server` to `verbose` and check the **AI CodeLint trace** channel.
-
-## Development
-
-From repository root:
-
-```sh
-cd server && cargo build && cd ../clients/vs-code && pnpm i && pnpm compile
-```
-
-There is also a workspace task named **install and compile** that runs the same workflow.
-
-### Useful Scripts (`clients/vs-code`)
-
-- `pnpm compile`: type-check and bundle extension output
-- `pnpm watch`: watch mode for rapid extension iteration
-- `pnpm lint`: run `oxlint`
-- `pnpm fmt`: run `oxfmt --write`
-- `pnpm package`: build a `.vsix` artifact
 
 ## Related Docs
 
