@@ -49,11 +49,14 @@ export async function checkAndReportIfBinaryMissing(command: string): Promise<"m
 
    let setupHint =
       command === BINARY_NAME
-         ? `Install '${BINARY_NAME}' and make sure it is on your PATH, or set SERVER_PATH to the full binary path. `
-         : `The SERVER_PATH value '${command}' could not be resolved. Set SERVER_PATH to a valid executable path. `;
+         ? `Install '${BINARY_NAME}' and make sure it is on your PATH, or set SERVER_PATH to the full binary path.`
+         : `The SERVER_PATH value '${command}' could not be resolved. Set SERVER_PATH to a valid executable path.`;
 
-   setupHint += `Get guidance at: ${WEBSITE}`;
-   vscode.window.showErrorMessage(`Could not start AI CodeLint because the '${command}' executable was not found. ${setupHint}`);
+   vscode.window.showErrorMessage(`Could not start AI CodeLint because the '${command}' executable was not found. ${setupHint}`, "View Installation Guide").then((choice) => {
+      if (choice === "View Installation Guide") {
+         vscode.env.openExternal(vscode.Uri.parse(WEBSITE));
+      }
+   });
 
    return "missing";
 }
