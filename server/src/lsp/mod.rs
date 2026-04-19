@@ -1,7 +1,8 @@
 mod backend;
 
+use log::error;
 use log::{debug, info, trace, warn};
-use tower_lsp::jsonrpc::Result;
+use tower_lsp::jsonrpc::{self, Result};
 use tower_lsp::lsp_types::*;
 use tower_lsp::LanguageServer;
 
@@ -12,24 +13,38 @@ pub use backend::Backend;
 impl LanguageServer for Backend {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
         info!("initializing language server capabilities");
-        Ok(InitializeResult {
-            server_info: None,
-            offset_encoding: None,
-            capabilities: ServerCapabilities {
-                text_document_sync: Some(TextDocumentSyncCapability::Options(
-                    TextDocumentSyncOptions {
-                        open_close: Some(true),
-                        change: Some(TextDocumentSyncKind::FULL),
-                        will_save: Some(false),
-                        will_save_wait_until: Some(false),
-                        save: Some(TextDocumentSyncSaveOptions::SaveOptions(SaveOptions {
-                            include_text: Some(true),
-                        })),
-                    },
-                )),
-                ..Default::default()
-            },
-        })
+
+        if self.lsp_startup_errs.len() != 0 {
+            let err_msg = format!(
+                "ai-codelint encountered errors during lsp server startup: \n{}",
+                self.lsp_startup_errs.join(". \n")
+            );
+            error!("{err_msg}");
+            Err(jsonrpc::Error {
+                code: jsonrpc::ErrorCode::InternalError,
+                message: err_msg.into(),
+                data: None,
+            })
+        } else {
+            Ok(InitializeResult {
+                server_info: None,
+                offset_encoding: None,
+                capabilities: ServerCapabilities {
+                    text_document_sync: Some(TextDocumentSyncCapability::Options(
+                        TextDocumentSyncOptions {
+                            open_close: Some(true),
+                            change: Some(TextDocumentSyncKind::FULL),
+                            will_save: Some(false),
+                            will_save_wait_until: Some(false),
+                            save: Some(TextDocumentSyncSaveOptions::SaveOptions(SaveOptions {
+                                include_text: Some(true),
+                            })),
+                        },
+                    )),
+                    ..Default::default()
+                },
+            })
+        }
     }
 
     async fn shutdown(&self) -> Result<()> {

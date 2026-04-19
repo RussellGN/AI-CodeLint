@@ -41,13 +41,15 @@ impl Document {
 pub struct Backend {
     pub client: Client,
     cache: DashMap<String, Document>,
+    pub lsp_startup_errs: Vec<String>,
 }
 
 impl Backend {
-    pub fn new(client: Client) -> Self {
+    pub fn new(client: Client, init_errs: Vec<String>) -> Self {
         Self {
             client,
             cache: Default::default(),
+            lsp_startup_errs: init_errs,
         }
     }
 

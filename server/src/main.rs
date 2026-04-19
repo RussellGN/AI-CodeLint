@@ -9,14 +9,18 @@ use ai_codelint::{check_if_outdated, CLIFormatter, CRATE_NAME};
 
 #[tokio::main]
 async fn main() {
+    let mut lsp_startup_errs = vec![];
     dotenvy::dotenv().ok();
+    let args = Args::parse();
 
     if let Err(e) = check_if_outdated().await {
-        println!("{}: {e}", "version check failed".error_display());
-        std::process::exit(1)
+        println!("{} - {e}", "version check failed".error_display());
+        if args.mode == Some(Mode::Server) {
+            lsp_startup_errs.push(format!("{} - {e}", "version check failed".error_display()));
+        } else {
+            std::process::exit(1)
+        }
     }
-
-    let args = Args::parse();
 
     if args.configure {
         let config_result = match Config::build().await {
@@ -49,7 +53,8 @@ async fn main() {
         let stdin = tokio::io::stdin();
         let stdout = tokio::io::stdout();
 
-        let (service, socket) = LspService::build(|client| Backend::new(client)).finish();
+        let (service, socket) =
+            LspService::build(|client| Backend::new(client, lsp_startup_errs)).finish();
         info!("LSP service initialized, waiting for editor requests");
 
         Server::new(stdin, stdout, socket).serve(service).await;

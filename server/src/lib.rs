@@ -7,6 +7,7 @@ pub mod lsp;
 use std::path::Path;
 
 use colored::{ColoredString, Colorize};
+use log::error;
 use semver::Version;
 use serde::Deserialize;
 
@@ -26,7 +27,10 @@ pub async fn check_if_outdated() -> Result<(), String> {
         "https://raw.githubusercontent.com/RussellGN/AI-CodeLint/refs/heads/main/status.json",
     )
     .await
-    .map_err(|e| e.to_string())?
+    .map_err(|e| {
+        error!("{e}");
+        "could not send request for recommended version"
+    })?
     .text()
     .await
     .map_err(|e| e.to_string())?;
