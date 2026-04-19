@@ -16,7 +16,7 @@ impl LanguageServer for Backend {
 
         if self.lsp_startup_errs.len() != 0 {
             let err_msg = format!(
-                "AI-CodeLint encountered errors during server startup : \n{}. \nFor more details, open the 'AI CodeLint' output channel.",
+                "AI-CodeLint encountered errors during server startup: \n{}. \nFor more details, open the 'AI CodeLint' output channel.",
                 self.lsp_startup_errs.join(" | ")
             );
             error!("{err_msg}");
