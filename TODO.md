@@ -1,4 +1,5 @@
-- publish vscode extension, with binary install script built in
+- pipe and report lsp server exit errors to lsp client
+- add binary install script to vscode extension
 - create unified release CI
 - create jetbrains ides extension
 - create minimal dedicated interface for linter showcasing
