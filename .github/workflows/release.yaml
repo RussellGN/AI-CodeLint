@@ -1,13 +1,13 @@
-name: "Build & Publish Server Release (Auto-versioned)"
+name: "Build & Publish Binary Release (Auto-versioned)"
 
 on:
    push:
       tags:
-         - "v*"
+         - "bin-v*"
    workflow_dispatch:
       inputs:
          tag:
-            description: "Release Tag (e.g., v2.0.1)"
+            description: "Release Tag (e.g., bin-v2.0.1)"
             required: true
             type: string
 
@@ -40,7 +40,7 @@ jobs:
                 exit 1
               fi
 
-              VERSION="${TAG_NAME#v}"
+              VERSION="${TAG_NAME#bin-v}"
 
               echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
               echo "version=$VERSION" >> "$GITHUB_OUTPUT"
