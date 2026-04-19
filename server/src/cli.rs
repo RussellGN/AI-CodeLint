@@ -89,7 +89,7 @@ impl Args {
                 std::process::exit(0)
             }
             Err(e) => {
-                println!("{}", e.error_display());
+                eprintln!("{}", e.error_display());
                 std::process::exit(1)
             }
         }

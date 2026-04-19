@@ -24,7 +24,7 @@ pub async fn invoke_model(
         prompt.estimate_token_count() + preamble.estimate_token_count()
     );
     if model.to_lowercase().contains("free") {
-        println!("\n{}", format!("NOTE: {model} is a free model and will likely give bad results or fail completely \nconsider using {RECOMMENDED_MODEL} (run '{}'). \nProceeding...", (CRATE_NAME.to_owned() + " --configure").info_display()).warning_display())
+        eprintln!("\n{}", format!("NOTE: {model} is a free model and will likely give bad results or fail completely \nconsider using {RECOMMENDED_MODEL} (run '{}'). \nProceeding...", (CRATE_NAME.to_owned() + " --configure").info_display()).warning_display())
     }
 
     let config = OpenAIConfig::new()
