@@ -16,8 +16,8 @@ impl LanguageServer for Backend {
 
         if self.lsp_startup_errs.len() != 0 {
             let err_msg = format!(
-                "ai-codelint encountered errors during server startup : \n{}For more details, open the 'AI CodeLint' output channel.",
-                self.lsp_startup_errs.join(". \n")
+                "AI-CodeLint encountered errors during server startup : \n{}. \nFor more details, open the 'AI CodeLint' output channel.",
+                self.lsp_startup_errs.join(" | ")
             );
             error!("{err_msg}");
             Err(jsonrpc::Error {

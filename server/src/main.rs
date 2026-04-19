@@ -14,7 +14,7 @@ async fn main() {
     let args = Args::parse();
 
     if let Err(e) = check_if_outdated().await {
-        let startup_err = format!("version check failed: {e}");
+        let startup_err = format!("version check failed - {e}");
         eprintln!("{}", startup_err.error_display());
         if args.mode == Some(Mode::Server) {
             lsp_startup_errs.push(startup_err);
