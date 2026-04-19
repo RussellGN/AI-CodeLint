@@ -1,3 +1,2 @@
-- create unified release CI
-- create jetbrains ides extension
+- create clients for other IDEs
 - create minimal dedicated interface for linter showcasing
