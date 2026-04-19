@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import { BINARY_NAME, checkAndReportIfBinaryMissing } from "./lib";
+import { BINARY_NAME, checkAndReportIfBinaryMissing, WEBSITE } from "./lib";
 
 let client: lsp.LanguageClient;
 
@@ -12,7 +12,8 @@ export async function activate(_context: vscode.ExtensionContext) {
    }
 
    if (!process.env.OPENROUTER_API_KEY) {
-      vscode.window.showErrorMessage("OPENROUTER_API_KEY environment variable is required to use this extension. Please set it globally on your machine. Aborting...");
+      vscode.window.showErrorMessage("OPENROUTER_API_KEY environment variable is required to use this extension. Please set it globally on your machine. Get guidance at: " + WEBSITE);
+
       return;
    }
 
