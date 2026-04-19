@@ -1,6 +1,6 @@
 {
    "name": "ai-codelint-vscode-extension",
-   "version": "0.0.7",
+   "version": "0.0.9",
    "description": "AI CodeLint VSCode extension",
    "license": "MIT",
    "dependencies": {
