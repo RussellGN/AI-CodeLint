@@ -112,7 +112,7 @@ pub fn get_api_key() -> String {
     match std::env::var(OPENROUTER_API_KEY_VARNAME) {
         Ok(key) => key,
         Err(e) => {
-            println!(
+            eprintln!(
                 "{}: {e}",
                 "'OPENROUTER_API_KEY' environment variable is required".error_display()
             );
