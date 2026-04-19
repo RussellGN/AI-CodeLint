@@ -1,18 +1,59 @@
-import axios from "axios";
-import * as settings from "../package.json";
+import { constants as fsConstants } from "node:fs";
+import { access } from "node:fs/promises";
+import { delimiter, join } from "node:path";
 import * as vscode from "vscode";
 
-export async function checkAndReportIfOutdated(): Promise<"outdated" | "not outdated"> {
-   const res = await axios<{ recommended_version: string }>("https://raw.githubusercontent.com/RussellGN/AI-CodeLint/refs/heads/main/status.json");
+export const BINARY_NAME = "ai-codelint";
+export const WEBSITE = "https://russellgn.github.io/AI-CodeLint";
 
-   if (res.data.recommended_version.toString() !== settings.version.toString()) {
-      vscode.window.showErrorMessage(
-         `Current version '${settings.version}' of ${BINARY_NAME} is out of date. Please download and use the recommended version '${res.data.recommended_version}' or newer.`,
-      );
-      return "outdated";
+async function isExecutable(path: string): Promise<boolean> {
+   try {
+      await access(path, fsConstants.X_OK);
+      return true;
+   } catch {
+      return false;
    }
-
-   return "not outdated";
 }
 
-export const BINARY_NAME = "ai-codelint";
+async function resolveBinary(command: string): Promise<string | undefined> {
+   if (command.includes("/") || command.includes("\\")) {
+      return (await isExecutable(command)) ? command : undefined;
+   }
+
+   const pathEntries = (process.env.PATH || "").split(delimiter).filter(Boolean);
+   const candidates = [command];
+
+   if (process.platform === "win32" && !command.includes(".")) {
+      const pathExts = (process.env.PATHEXT || ".EXE;.CMD;.BAT;.COM").split(";").filter(Boolean);
+      for (const ext of pathExts) {
+         candidates.push(`${command}${ext}`);
+      }
+   }
+
+   for (const pathEntry of pathEntries) {
+      for (const candidate of candidates) {
+         const candidatePath = join(pathEntry, candidate);
+         if (await isExecutable(candidatePath)) {
+            return candidatePath;
+         }
+      }
+   }
+
+   return undefined;
+}
+
+export async function checkAndReportIfBinaryMissing(command: string): Promise<"missing" | "found"> {
+   if (await resolveBinary(command)) {
+      return "found";
+   }
+
+   let setupHint =
+      command === BINARY_NAME
+         ? `Install '${BINARY_NAME}' and make sure it is on your PATH, or set SERVER_PATH to the full binary path. `
+         : `The SERVER_PATH value '${command}' could not be resolved. Set SERVER_PATH to a valid executable path. `;
+
+   setupHint += `Get guidance at: ${WEBSITE}`;
+   vscode.window.showErrorMessage(`Could not start AI CodeLint because the '${command}' executable was not found. ${setupHint}`);
+
+   return "missing";
+}

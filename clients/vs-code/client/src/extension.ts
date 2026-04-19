@@ -1,11 +1,13 @@
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import { checkAndReportIfOutdated } from "./lib";
+import { BINARY_NAME, checkAndReportIfBinaryMissing } from "./lib";
 
 let client: lsp.LanguageClient;
 
 export async function activate(_context: vscode.ExtensionContext) {
-   if ((await checkAndReportIfOutdated()) == "outdated") {
+   const command = `${process.env.SERVER_PATH || BINARY_NAME}`;
+
+   if ((await checkAndReportIfBinaryMissing(command)) == "missing") {
       return;
    }
 
@@ -15,7 +17,6 @@ export async function activate(_context: vscode.ExtensionContext) {
    }
 
    const traceOutputChannel = vscode.window.createOutputChannel("AI CodeLint trace");
-   const command = `${process.env.SERVER_PATH || "ai-codelint"}`;
 
    const run: lsp.Executable = {
       command,
@@ -28,6 +29,7 @@ export async function activate(_context: vscode.ExtensionContext) {
          },
       },
    };
+
    const serverOptions: lsp.ServerOptions = {
       run,
       debug: run,
@@ -40,6 +42,7 @@ export async function activate(_context: vscode.ExtensionContext) {
          maxRestartCount: 0,
       },
    };
+
    client = new lsp.LanguageClient("ai-codelint", "AI CodeLint", serverOptions, clientOptions);
    client.start();
 }
