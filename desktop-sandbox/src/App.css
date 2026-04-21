@@ -11,5 +11,5 @@ body {
 }
 
 button {
-   @apply bg-LIGHT  shadow-2xl  py-0.5 text-DARK p-2 cursor-pointer;
+   @apply bg-LIGHT  shadow-2xl  py-0.5 text-DARK p-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50;
 }

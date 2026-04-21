@@ -1,6 +1,10 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import useLinter from "./useLinter";
 
 export default function useContents() {
+   const [lintResult, setLintResult] = useState<string>("");
+   const [loading, setLoading] = useState(false);
+   const { lintContents } = useLinter();
    const textAreaRef = useRef<HTMLTextAreaElement>(null);
    const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -23,5 +27,20 @@ export default function useContents() {
       }
    }
 
-   return { textAreaRef, fileInputRef, openFile, onFileChange };
+   async function onLintContents() {
+      setLoading(true);
+      setLintResult("");
+      if (textAreaRef.current) {
+         const contents = textAreaRef.current.value;
+         const res = await lintContents(contents);
+         setLintResult(res);
+         setLoading(false);
+      }
+   }
+
+   function onCloseDiagnostics() {
+      setLintResult("");
+   }
+
+   return { loading, lintResult, textAreaRef, fileInputRef, openFile, onFileChange, onLintContents, onCloseDiagnostics };
 }
