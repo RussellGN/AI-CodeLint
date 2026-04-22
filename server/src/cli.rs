@@ -15,7 +15,7 @@ pub enum Mode {
 }
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = "Boost code quality as you type")]
+#[command(version, about, long_about = "Use LLMs to lint code.")]
 pub struct Args {
     #[arg(short, long)]
     pub mode: Option<Mode>,

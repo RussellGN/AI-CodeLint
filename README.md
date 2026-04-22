@@ -1,6 +1,6 @@
 # AI CodeLint
 
-Boost code quality as you type.
+Use LLMs to lint code.
 
 AI CodeLint uses LLMs to identify logic bugs that survive compilation and traditional linting.
 

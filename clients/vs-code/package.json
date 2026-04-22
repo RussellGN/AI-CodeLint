@@ -2,7 +2,7 @@
    "name": "ai-codelint",
    "publisher": "russell-gn",
    "version": "0.0.9",
-   "description": "Boost code quality as you type",
+   "description": "Use LLMs to lint code.",
    "icon": "./assets/logo.png",
    "categories": [
       "AI",

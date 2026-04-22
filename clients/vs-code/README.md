@@ -1,6 +1,6 @@
 # AI CodeLint VS Code Extension
 
-Boost code quality as you type.
+Use LLMs to lint code.
 
 This extension runs the `ai-codelint` language server in the background and surfaces AI-assisted logic diagnostics directly in VS Code.
 
