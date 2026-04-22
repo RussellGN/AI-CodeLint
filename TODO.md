@@ -1,2 +1,1 @@
 - create clients for other IDEs
-- create minimal dedicated interface for linter showcasing
