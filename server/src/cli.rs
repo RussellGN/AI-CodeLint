@@ -10,29 +10,64 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, ValueEnum)]
 pub enum Mode {
+    #[value(help = "Run as an LSP server for editor integrations.")]
     Server,
+    #[value(help = "Run once from the terminal against a local file path.")]
     CLI,
 }
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = "Use LLMs to lint code.")]
+#[command(
+    version,
+    about = "Use LLMs to lint code.",
+    long_about = "AI-CodeLint uses LLMs (through inference providers) to analyze your source code and identify logic bugs.\n\nRun in server mode to power editor diagnostics over LSP, or run in cli mode to lint one file from the terminal.",
+    after_long_help = "Examples:\n  ai-codelint --mode server\n  ai-codelint --mode cli --path ./src/app.ts\n  ai-codelint --mode cli --path ./src/app.ts --model anthropic/claude-sonnet-4 --max-tokens 4096\n  ai-codelint --configure\n\nNotes:\n  - --path is required when --mode cli is used.\n  - --model and --max-tokens apply to linting requests.\n  - Set OPENROUTER_API_KEY in your environment before linting.",
+    next_line_help = true
+)]
 pub struct Args {
-    #[arg(short, long)]
+    #[arg(
+        short,
+        long,
+        value_enum,
+        value_name = "MODE",
+        help = "Execution mode: server for LSP, cli for one-shot file linting."
+    )]
     pub mode: Option<Mode>,
 
-    #[arg(short, long)]
+    #[arg(
+        short,
+        long,
+        value_name = "FILE_PATH",
+        help = "Path to the source file to lint. Required for --mode cli."
+    )]
     pub path: Option<PathBuf>,
 
-    #[arg(short, long)]
+    #[arg(
+        short,
+        long,
+        help = "Enable verbose logs (also enabled automatically in server mode)."
+    )]
     pub verbose: bool,
 
-    #[arg(short, long)]
+    #[arg(
+        short,
+        long,
+        help = "Run interactive configuration setup and write/update local config."
+    )]
     pub configure: bool,
 
-    #[arg(long)]
+    #[arg(
+        long,
+        value_name = "MODEL",
+        help = "Model identifier used for linting requests (for example anthropic/claude-sonnet-4)."
+    )]
     pub model: Option<String>,
 
-    #[arg(long)]
+    #[arg(
+        long,
+        value_name = "TOKENS",
+        help = "Maximum response token budget for linting output."
+    )]
     pub max_tokens: Option<u32>,
 }
 
