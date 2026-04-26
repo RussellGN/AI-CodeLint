@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.9] - 2026-04-26
+
+### Added
+
+- CLI now enforces required runtime arguments more strictly.
+- Improved CLI help documentation and guidance.
+
 ## [0.0.8] - 2026-04-19
 
 ### fixed
