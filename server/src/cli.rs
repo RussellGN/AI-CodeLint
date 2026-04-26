@@ -38,7 +38,9 @@ pub struct Args {
         short,
         long,
         value_name = "FILE_PATH",
-        help = "Path to the source file to lint. Required for --mode cli."
+        required_if_eq("mode", "cli"),
+        requires = "mode",
+        help = "Path to the source file to lint. Required when --mode cli is used."
     )]
     pub path: Option<PathBuf>,
 
@@ -59,6 +61,7 @@ pub struct Args {
     #[arg(
         long,
         value_name = "MODEL",
+        requires = "mode",
         help = "Model identifier used for linting requests (for example anthropic/claude-sonnet-4)."
     )]
     pub model: Option<String>,
@@ -66,6 +69,7 @@ pub struct Args {
     #[arg(
         long,
         value_name = "TOKENS",
+        requires = "mode",
         help = "Maximum response token budget for linting output."
     )]
     pub max_tokens: Option<u32>,
