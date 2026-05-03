@@ -8,8 +8,7 @@ use async_openai::{config::OpenAIConfig, Client};
 use log::{debug, error};
 use serde_json::Value;
 
-use crate::config::RECOMMENDED_MODEL;
-use crate::{CLIFormatter, CRATE_NAME, OPENROUTER_BASE_URL, get_api_key};
+use crate::{ OPENROUTER_BASE_URL, get_api_key, warn_if_free_model};
 
 pub async fn invoke_model(
     prompt: &str,
@@ -23,9 +22,7 @@ pub async fn invoke_model(
         "invoke {model}, with {} estimated input tokens, and max output tokens preference of {max_tokens}",
         prompt.estimate_token_count() + preamble.estimate_token_count()
     );
-    if model.to_lowercase().contains("free") {
-        eprintln!("\n{}", format!("NOTE: {model} is a free model and will likely give bad results or fail completely \nconsider using {RECOMMENDED_MODEL} (run '{}'). \nProceeding...", (CRATE_NAME.to_owned() + " --configure").info_display()).warning_display())
-    }
+    warn_if_free_model(model, Some(true));
 
     let config = OpenAIConfig::new()
         .with_api_base(OPENROUTER_BASE_URL)
@@ -97,6 +94,7 @@ pub async fn invoke_model(
         .clone()
         .ok_or(String::from("no response text"))
 }
+
 
 trait TokenCount {
     fn estimate_token_count(&self) -> usize;

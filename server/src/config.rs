@@ -4,8 +4,8 @@ use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    get_api_key_fallable, CLIFormatter, CRATE_NAME, OPENROUTER_API_KEY_DASH_URL,
-    OPENROUTER_API_KEY_VARNAME,
+    get_api_key_fallable, warn_if_free_model, CLIFormatter, CRATE_NAME,
+    OPENROUTER_API_KEY_DASH_URL, OPENROUTER_API_KEY_VARNAME,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -131,6 +131,7 @@ impl Config {
         }
 
         println!("\n{}\n", "configuration complete!".success_display());
+        warn_if_free_model(self.model(), None);
         Ok(())
     }
 

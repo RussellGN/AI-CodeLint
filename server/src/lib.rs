@@ -11,6 +11,8 @@ use log::error;
 use semver::Version;
 use serde::Deserialize;
 
+use crate::config::RECOMMENDED_MODEL;
+
 pub const OPENROUTER_API_KEY_VARNAME: &'static str = "OPENROUTER_API_KEY";
 pub const OPENROUTER_BASE_URL: &str = "https://openrouter.ai/api/v1";
 pub const OPENROUTER_API_KEY_DASH_URL: &str = "https://openrouter.ai/keys";
@@ -129,4 +131,14 @@ pub fn get_file_name(path: &Path) -> String {
     path.file_name()
         .map(|n| n.display().to_string())
         .unwrap_or_default()
+}
+
+pub fn warn_if_free_model(model: &str, print_proceed: Option<bool>) {
+    if model.to_lowercase().contains("free") {
+        eprintln!("\n{}", format!("NOTE: {model} is a free model and will likely give bad results or fail completely \nconsider using {RECOMMENDED_MODEL} (run '{}'). {}", 
+        (CRATE_NAME.to_owned() + " --configure").info_display(),     
+        if print_proceed.is_some_and(|b| b) {"\nProceeding..."} else {""}
+    ).warning_display(),
+    )
+    }
 }
