@@ -1,15 +1,11 @@
 # Lint Samples
 
-A curated dataset of code samples used to evaluate an AI-augmented linter. Samples are organised
-by category reflecting the nature and detectability of any issues they contain. The dataset spans
-Python, TypeScript, C, Rust, and Java.
-
----
+Use these to compare results with traditional linters
 
 ## 1. correct/
 
-Clean, bug-free implementations that should produce no diagnostics from either a conventional
-linter or the AI-augmented linter.
+should produce no diagnostics from either a conventional
+linter or AI-CodeLint.
 
 | Filename             | Description                                   |
 | -------------------- | --------------------------------------------- |
@@ -28,7 +24,7 @@ linter or the AI-augmented linter.
 
 ## 2. flagged_by_conventional_linters/
 
-Flawed snippets containing issues that a standard linter would explicitly catch and flag.
+implementation and style issues that a standard linter would explicitly catch and flag.
 
 | Filename                  | Issue                                            | Linter           |
 | ------------------------- | ------------------------------------------------ | ---------------- |
