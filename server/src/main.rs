@@ -45,7 +45,7 @@ async fn main() {
     }
 
     if args.mode == Some(Mode::CLI) {
-        let _ = clearscreen::clear();
+        // let _ = clearscreen::clear();
         info!("running in CLI mode!");
         args.process().await;
     } else if args.mode == Some(Mode::Server) {
