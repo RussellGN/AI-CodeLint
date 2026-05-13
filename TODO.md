@@ -1,1 +1,3 @@
 - create clients for other IDEs
+- surface errors in the client
+- surface warnings in the client
